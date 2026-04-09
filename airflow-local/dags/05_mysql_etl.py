@@ -86,6 +86,36 @@ def _transform(**kwargs):
 
 def _load(**kwargs):
     # csv => df => mysql 적제
+    # 1. csv 경로 획득
+
+    # 2. csv -> df
+
+    # 3. mysql 연결 => mysqlhook 사용
+    my_sql_hook = MySqlHook(mysql_conn_id='mysql_default')
+    conn = my_sql_hook.get_conn() # 커넥션 획득
+
+    try:
+    # 4. 커서를 획득하여 
+        with conn.cursor() as cursor:
+        # 4-1. insert 구문 사용
+        # sql = ""
+        # parmas = []
+        # cursor.executemany(sql, params)
+        # 4-2. 커밋
+        # conn.commit()
+            pass
+    except Exception as e:
+        pass
+    finally:
+       # 5. 연결종료  
+       if conn:
+           conn.close()
+
+
+
+    # 6. 연결 종료
+
+    # 7. 전체를 try ~ except로 감싸기(I/O)
     pass
 
 # 3. DAG 정의
