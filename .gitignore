@@ -1,1 +1,7 @@
-/airflow-local
+/crawling
+/dbt
+/etl
+/game
+/sql
+
+

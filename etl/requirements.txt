@@ -1,5 +1,0 @@
-pandas 
-pymysql
-sqlalchemy
-python-dotenv
-cryptography
