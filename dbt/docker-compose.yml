@@ -1,0 +1,30 @@
+services:
+  # dbt 실행 서비스
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: t1
+    ports:
+      - "3306:3306"
+    #volumes:
+    #  - ./mysql_data:/var/lib/mysql
+
+  dbt:
+    # Dockerfile에 기술된 내용을 기반으로 컨테이너를 구성하라
+    # (Dockerfile->이미지생성(1회)->컨테이너구성)
+    build: .
+    # 컨테이너 이름
+    container_name: dbt_app
+    # 볼륨 (현재위치(로컬PC)와 컨테이너의특정경로(/usr/app/dbt)가 동기화됨)
+    volumes:
+      - .:/usr/app/dbt
+    # dbt 서비스가 db 서비스가 뜬 후에 동작하도록 설정
+    depends_on:
+     - db
+    # 컨테이너가 바로 죽지 않도록 대기 모드로 설정 (선택사항)
+    tty: true
+    stdin_open: true
+    command: tail -f /dev/null # 컨테이너가 종료되지 않도록 무한 대기

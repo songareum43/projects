@@ -1,0 +1,58 @@
+[0m06:18:06.222693 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x711e3b9cfed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x711e3bcb5f50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x711e3b9cf290>]}
+
+
+============================== 06:18:06.230800 | a1cbac29-4249-4305-9923-7cb30bcebe53 ==============================
+[0m06:18:06.230800 [info ] [MainThread]: Running with dbt=1.7.9
+[0m06:18:06.233473 [debug] [MainThread]: running dbt with arguments {'log_format': 'default', 'log_path': 'logs', 'printer_width': '80', 'fail_fast': 'False', 'indirect_selection': 'eager', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'log_cache_events': 'False', 'use_colors': 'True', 'introspect': 'True', 'debug': 'False', 'use_experimental_parser': 'False', 'target_path': 'None', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'profiles_dir': '/root/.dbt', 'no_print': 'None', 'invocation_command': 'dbt init dbt_mysql', 'warn_error': 'None', 'version_check': 'True', 'partial_parse': 'True', 'write_json': 'True', 'cache_selected_only': 'False'}
+[0m06:18:06.236551 [warn ] [MainThread]: [ConfigFolderDirectory]: Unable to parse dict {'dir': PosixPath('/root/.dbt')}
+[0m06:18:06.239260 [info ] [MainThread]: Creating dbt configuration folder at 
+[0m06:18:06.245997 [debug] [MainThread]: Starter project path: /usr/local/lib/python3.11/site-packages/dbt/include/starter_project
+[0m06:18:06.898331 [info ] [MainThread]: 
+Your new dbt project "dbt_mysql" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m06:18:06.901497 [info ] [MainThread]: Setting up your profile.
+[0m06:18:13.694260 [info ] [MainThread]: Profile dbt_mysql written to /root/.dbt/profiles.yml using target's sample configuration. Once updated, you'll be able to start developing with dbt.
+[0m06:18:13.698263 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x711e3b9cfb50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x711e3b9cd010>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x711e3b9ccc10>]}
+[0m06:18:13.701326 [debug] [MainThread]: Flushing usage events
+[0m07:53:33.325218 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x75df59fdaf90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x75df59fdb1d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x75df59fdb850>]}
+
+
+============================== 07:53:33.332758 | 696c77f8-f9a3-479c-95ab-f655f2605282 ==============================
+[0m07:53:33.332758 [info ] [MainThread]: Running with dbt=1.7.9
+[0m07:53:33.335952 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'static_parser': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'no_print': 'None', 'indirect_selection': 'eager', 'printer_width': '80', 'cache_selected_only': 'False', 'use_experimental_parser': 'False', 'profiles_dir': '/root/.dbt', 'use_colors': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'write_json': 'True', 'partial_parse': 'True', 'debug': 'False', 'log_format': 'default', 'fail_fast': 'False', 'invocation_command': 'dbt init dbt_mysql2', 'quiet': 'False', 'send_anonymous_usage_stats': 'True', 'warn_error': 'None', 'log_path': 'logs'}
+[0m07:53:33.338592 [warn ] [MainThread]: [ConfigFolderDirectory]: Unable to parse dict {'dir': PosixPath('/root/.dbt')}
+[0m07:53:33.341401 [info ] [MainThread]: Creating dbt configuration folder at 
+[0m07:53:33.346465 [debug] [MainThread]: Starter project path: /usr/local/lib/python3.11/site-packages/dbt/include/starter_project
+[0m07:53:34.008779 [info ] [MainThread]: 
+Your new dbt project "dbt_mysql2" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m07:53:34.010626 [info ] [MainThread]: Setting up your profile.
+[0m07:53:36.767095 [info ] [MainThread]: Profile dbt_mysql2 written to /root/.dbt/profiles.yml using target's sample configuration. Once updated, you'll be able to start developing with dbt.
+[0m07:53:36.771376 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x75df59fdb710>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x75df59fdaed0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x75df5ee01350>]}
+[0m07:53:36.774429 [debug] [MainThread]: Flushing usage events
