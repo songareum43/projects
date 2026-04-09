@@ -17,14 +17,14 @@ from airflow.providers.mysql.hooks.mysql import MySqlHook
 import json
 import random
 import pandas as pd # 소량의 데이터(데이터 규모)
-import os
+import os # 컴퓨터 환경(운영체제)과 직접 소통하는 통로
 
 # 2. 환경변수 
 # 프로젝트 내부 폴더를 데이터용으로 (~/dags/data) 지정
 # task 진행 간 생성되는 파일을 동기화하도록 위치 지정 -> 향후 s3(데이터 레이크)로 대체 될 수 있음
 # 도커 내부에 생성된 컨테이너 상 워커 내 airflow 상 저장한 데이터 위치
 DATA_PATH='/opt/airflow/dags/data'
-os.makedirs(DATA_PATH, exist_ok=True)
+os.makedirs(DATA_PATH, exist_ok=True) # exist_ok=True -> 이미 같은 폴더가 있으면 에러 뱉지 말고 그냥 그 폴더 사용(안전 장치) 
 
 def _extract(**kwargs):
     # 스마트팩토리에 설치된 오븐 온도 센서 데이터가 발생되면 데이터레이크(s3, 어딘가에 존재)에 쌓이고 있음
@@ -36,14 +36,14 @@ def _extract(**kwargs):
             "sensor_id" : f"SENSOR_{i+1}", # 장비 ID
             "timestamp" : datetime.now().strftime("%Y-%m-%d %H:%M:%S"), # YYYY-MM-DD hh:mm:ss
             "temperature" : round( random.uniform(20.0, 150.0), 2),
-            "status" : "on", # 'off'
+            "status" : "on" # 'off'
         } for i in range(10) ]
 
     # 더미 데이터를 파일로 저장 (로그 파일처럼) -> json 형태
     # /opt/airflow/dags/data/sensor_data_DAG수행날짜.json
     file_path = f'{DATA_PATH}/sensor_data_{kwargs["ds_nodash"]}.json'
     with open(file_path, 'w') as f:
-        json.dump(data,f)
+        json.dump(data,f) # data를 json 형태로 변환하여 담기
 
     # 로그는 별도의 프로그램에서 지속적으로 발생
     # 현재는 편의상 airflow에 포함시킴
@@ -139,7 +139,7 @@ with DAG(
         # 최초는 생성, 존재하면 pass => if not exists
         task_id="create_table",
         # 연결 정보
-        conn_id="mysql_default", #  대시보드 admin > connections> 하위에 사전에 등록
+        conn_id="mysql_default", #  대시보드 admin > connections> 하위에 사전에 등록 / 조회할 수 있는 권한?!
         # sql
         sql = '''
             CREATE TABLE IF NOT EXISTS sensor_readings (
