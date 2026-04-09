@@ -39,15 +39,24 @@ def _extract(**kwargs):
 
     # 더미 데이터를 파일로 저장 (로그 파일처럼) -> json 형태
     # /opt/airflow/dags/data/sensor_data_DAG수행날짜.json
-    file_path = f'{DATA_PATH}/sensor_data_{kwargs["ds_nodash"]}'.json'
+    file_path = f'{DATA_PATH}/sensor_data_{kwargs["ds_nodash"]}.json'
     with open(file_path, 'w') as f:
         json.dump(data,f)
+
+    # 로그는 별도의 프로그램에서 지속적으로 발생
+    # 현재는 편의상 airflow에 포함시킴
+
+    #XCom을 통해서 task_transform에게 전달 (로그의 경로를 전달)
+    logging.info(f'extract 한 로그 데이터 {file_path}')
+    return file_path
     pass
 
 def _transform(**kwargs):
     # _extract에서 추출한 데이터를 XCom을 통해서 획득
     # 이 데이터를 df(pandas 사용, 소량 데이터)로 로드 -> 섭씨를 화씨로 일괄 처리(1번에 n개의 센서에서 데이터가 전달)
     # 전처리 된 내용은 csv로 덤프 (s3로 업로드 고려)
+    # 1. XCom을 통해서 이전 task에서 전달한 데이터 획득
+    json_file_path = 
     pass
 
 def _load(**kwargs):
