@@ -39,7 +39,9 @@ def _extract(**kwargs):
 
     # 더미 데이터를 파일로 저장 (로그 파일처럼) -> json 형태
     # /opt/airflow/dags/data/sensor_data_DAG수행날짜.json
-    json.dump(data, f'sensor_data_DAG{}')
+    file_path = f'{DATA_PATH}/sensor_data_{kwargs["ds_nodash"]}'.json'
+    with open(file_path, 'w') as f:
+        json.dump(data,f)
     pass
 
 def _transform(**kwargs):
