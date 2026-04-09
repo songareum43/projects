@@ -12,7 +12,7 @@ import logging
 # 3-1. 콜백 함수 정의
 def _print(**kwargs):
     logging.info(f'ds 출력 { kwargs ["ds"]}')
-    logging.info(f'ds_nodash 출력 { kwargs ["ds_nodash"]}')
+    logging.info(f'ds_nodash 출력 { kwargs ["ds_nodash"] }')
     pass
 
 

@@ -6,7 +6,7 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator # task 조건부 선택
-from airflow.operators.empty import EmptyOperator
+from airflow.operators.empty import EmptyOperator # 아무 일도 하지 x, 초록불만 켜고 넘어감 -> 구조 만드는 역할
 from airflow.utils.trigger_rule import TriggerRule # 성공, 실패, 최소 단위 등 조건 설정
 import logging
 import random
@@ -62,7 +62,7 @@ with DAG(
     task_end = EmptyOperator(
         task_id="end",
         # task 전체 수행에 대한 조건 부여 : 실패 x, 최소 성공 1번 이상
-        trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS
+        trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS # 이 룰 적용이 없을 경우 다 성공한 게 아니므로(skip 존재) 마지막 end는 실행되지 않게 됨
     )
 
     # 4. 의존성 정의 -> 시나리오별 준비
