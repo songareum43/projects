@@ -56,7 +56,7 @@ def _extract(**kwargs):
 def _transform(**kwargs):
     # _extract에서 추출한 데이터를 XCom을 통해서 획득
     # 1. XCom을 통해서 이전 task에서 전달한 데이터 획득
-    ti = kwargs['ti']
+    ti = kwargs['ti'] # 이게 있어야 xcom 접속 가능
     json_file_path = ti.xcom_pull(task_ids='extract')
     #로그 출력
     logging.info(f'전달받은 데이터 {json_file_path}')
@@ -82,41 +82,51 @@ def _transform(**kwargs):
 
     # 4. csv 경로 xcom을 통해서 개시
     return file_path
-    pass
+    
 
 def _load(**kwargs):
     # csv => df => mysql 적제
-    # 1. csv 경로 획득
+    # 1. csv 경로 획득 -> xcom을 통해서 이전 task(게시자)의 id를 이용하여 추출 <- ti 필요
+    ti = kwargs['ti']
+    csv_path = ti.xcom_pull(task_ids='transform')
 
-    # 2. csv -> df
+    # 2. csv -> df (도입 근거 => 소규모 데이터)
+    df = pd.read_csv(csv_path)
 
     # 3. mysql 연결 => mysqlhook 사용
     my_sql_hook = MySqlHook(mysql_conn_id='mysql_default')
-    conn = my_sql_hook.get_conn() # 커넥션 획득
+    conn = my_sql_hook.get_conn() # 커넥션 획득 -> I/O 영향 있음(예외 처리 등 필요, with문)
 
+    # 7. 전체를 try ~ except로 감싸기(I/O)
     try:
     # 4. 커서를 획득하여 
         with conn.cursor() as cursor:
         # 4-1. insert 구문 사용
-        # sql = ""
-        # parmas = []
-        # cursor.executemany(sql, params)
+            sql = '''
+                insert into sensor_readings
+                (sensor_id, timestamp, temperature_c, temperature_f)
+                values (%s, %s, %s, %s)
+                '''
+        # 여러 데이터를 한번에 넣을 때 유용 => executemany() 대응
+        parmas = [
+            (data['sensor_id'], data['timestamp'], 
+             data['temperature_c'], data['temperature_f'])
+            for _, data in df.iterrows() # 데이터가 없을 때까지 반복 -> 데이터가 한세트씩 추출
+        ]
+        logging.info(f'입력한 데이터(파라미터) {parmas}')
+        cursor.executemany(sql, parmas) # 한번에 밀어넣기
         # 4-2. 커밋
-        # conn.commit()
-            pass
-    except Exception as e:
+        conn.commit()
+        logging.info('mysql에 적제 완료')
         pass
+    except Exception as e:
+        logging.info(f'적제 오류 : {e}')
     finally:
        # 5. 연결종료  
        if conn:
            conn.close()
+           logging.info(f'mysql 연결 종료 (뒷정리)')
 
-
-
-    # 6. 연결 종료
-
-    # 7. 전체를 try ~ except로 감싸기(I/O)
-    pass
 
 # 3. DAG 정의
 with DAG(
