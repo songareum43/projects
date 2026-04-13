@@ -100,7 +100,7 @@ def _load(**kwargs):
     # 6. 전체를 try ~ except로 감싸기(I/O)
     # 실제는 실패 작업인데, 성공으로 오인할 수 있음 -> 예외 던지기 필요
     try:
-    # 4. 커서(실제 일꾼)를(을) 획득하여 
+    # 4. 커서(실제 일꾼 - sql 소속)를(을) 획득하여 
         with conn.cursor() as cursor:
         # 4-1. insert 구문 사용
             sql = '''
