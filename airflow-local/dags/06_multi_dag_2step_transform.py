@@ -16,7 +16,7 @@ os.makedirs(DATA_PATH, exist_ok=True)
 def _transform(**kwargs):
     # _extract에서 추출한 데이터를 다른 DAG에서 전달한 conf를 활용하여 추출 -> "dag_run"
     # 1. dag_run을 통해서 이전 task에서 전달한 데이터 획득
-    dag_run = kwargs['ti'] 
+    dag_run = kwargs['dag_run'] 
     json_file_path = dag_run.conf.get('json_path')
     #로그 출력
     logging.info(f'전달받은 데이터 {json_file_path}')
@@ -69,7 +69,7 @@ with DAG(
         conf={
             "csv_path" : "{{task_instance.xcom.pull('transform')}}"
         },
-        reset_dug_time=True,
+        reset_dag_run=True,
         wait_for_completion=False
     )
 

@@ -17,8 +17,8 @@ os.makedirs(DATA_PATH, exist_ok=True)
 def _load(**kwargs):
     # csv => df => mysql 적제
     # 1. csv 경로 획득 -> xcom을 통해서 이전 task(게시자)의 id를 이용하여 추출 <- ti 필요
-    ti = kwargs['ti']
-    csv_path = ti.xcom_pull(task_ids='transform')
+    dag_run = kwargs['dag_run'] 
+    csv_path = dag_run.conf.get('csv_path')
 
     # 2. csv -> df (도입 근거 => 소규모 데이터)
     df = pd.read_csv(csv_path)
@@ -72,10 +72,32 @@ with DAG(
     catchup = False, 
     tags = ['etl', 'load']
 ) as dag:
+    
+    task_create_table = SQLExecuteQueryOperator(
+        # table 생성, if not exists를 사용하여 무조건 sql이 일단 수행되게 구성 -> 안하면 fail 발생(2회차부터)
+        # 최초는 생성, 존재하면 pass => if not exists
+        task_id="create_table",
+        # 연결 정보
+        conn_id="mysql_default", #  대시보드 admin > connections> 하위에 사전에 등록 / 조회할 수 있는 권한?!
+        # sql
+        sql = '''
+            CREATE TABLE IF NOT EXISTS sensor_readings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                sensor_id VARCHAR(50),
+                timestamp DATETIME,
+                temperature_c FLOAT,
+                temperature_f FLOAT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        ''' 
+    ) 
+
     task_load = PythonOperator(
         task_id='load',
         python_callable=_load
     )
+
+    
     # 5. 의존성 정의
-    task_create_table >> task_extract >> task_transform >> task_load
-    pass
+    task_create_table >> task_load
+  
