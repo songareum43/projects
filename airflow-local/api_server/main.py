@@ -28,7 +28,7 @@ app = FastAPI()
 class ReqData(BaseModel): # 요청
     # 사용자 아이디, 소득, 대출 총량
     user_id:str # 타입 힌트
-    incom:int
+    income:int
     loan_amt:int
     pass
 
@@ -46,3 +46,32 @@ class ResData(BaseModel): # 응답
 @app.get('/') # URL 정의, http 프로토컬의 method 정의(get 방식)
 def home():
     return {'status':'AI 신용평가 서비스 API'}
+
+# 신용평가 api 서비스
+# post 전송 사유 : 보안, 대량 데이터, http body를 통해서 전달 등...
+# response_model : 응답 데이터는 이런 형태로 보내라는 의미 -> 유효성 검사 자동 수행
+@app.post("/predict", response_model=List[ResData])
+def predict(users:List[ReqData]): # 요청 데이터 형태 규정 -> 유효성 검사 자동 수행
+    # 1. users를 순회(반복)하여 1명의 유저 정보 획득 => for
+    results = list()
+    for user in users:
+        '''
+            가상 공식
+            사전식 = (소득//1000)*10
+            credit_score = min(난수(300,600) + 사전식 , 990)
+            grade = credit_score가 800 이상이면 A, 600 이상이면 B, 나머지 C
+        '''
+        # 2. 고객 1명 당 신용평가 수행 (AI x, 가상 공식 적용) => 차후 실제 모델로 교체
+        사전식 = (user.income // 1000) * 10
+        credit_score = min(random.randint(300,600) + 사전식 , 990)
+        grade = "A" if credit_score >= 800 else "B" if credit_score >= 600 else "C"
+        # 3. 평가 결과 담기 -> list
+        results.append({
+            "user_id": user.user_id,
+            "credit_score":credit_score, # 0점 ~ 1000점
+            "grade":grade
+        })
+        
+    # 4. 결과 반환 
+    return results  
+
