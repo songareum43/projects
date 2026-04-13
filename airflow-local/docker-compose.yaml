@@ -318,6 +318,7 @@ services:
       - "8000:8000"
     networks:
       - default
+      
 volumes:
   postgres-db-volume:
   # mysql용 볼륨 -> 도커 엔진 내부에 공간 할당

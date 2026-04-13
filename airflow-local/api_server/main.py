@@ -20,6 +20,7 @@ import random                  # 신용평가 시 활용
 
 # 2. fastapi app(객체) 생성
 # 해당 변수명은 uvicorn에서 구동시 `모듈명:FastAPI 객체명`에서 객체명에 해당 
+# FastAPI를 바탕으로 일할 수 있는 인스턴스 생성
 app = FastAPI()
 
 # 3. 요청/응답 데이터 구조를 정의 + 유효성 검사 틀을 제공하는 클래스 구성 -> pydantic 사용
@@ -30,14 +31,12 @@ class ReqData(BaseModel): # 요청
     user_id:str # 타입 힌트
     income:int
     loan_amt:int
-    pass
 
 class ResData(BaseModel): # 응답
     # 사용자 아이디, 신용 접수, 등급
     user_id:str
     credit_score:int # 0점 ~ 1000점
     grade:str # A, B, C 등급
-    pass
 
 # 4. 라우팅(url 정의, 해당 요청 시 처리할 함수 매칭)  
 # @app => 데코레이터 => 함수 안에 함수가 존재하는 2중 구조 => 특정 함수에 공통 기능 부여시 유용
