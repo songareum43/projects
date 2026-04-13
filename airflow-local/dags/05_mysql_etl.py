@@ -51,7 +51,7 @@ def _extract(**kwargs):
     #XCom을 통해서 task_transform에게 전달 (로그의 경로를 전달)
     logging.info(f'extract 한 로그 데이터 {file_path}')
     return file_path
-    pass
+    
 
 def _transform(**kwargs):
     # _extract에서 추출한 데이터를 XCom을 통해서 획득
@@ -117,10 +117,10 @@ def _load(**kwargs):
             ]
             logging.info(f'입력한 데이터(파라미터) {params}')
             cursor.executemany(sql, params) # 한번에 밀어넣기
-            # 4-2. 커밋
+            # 4-2. 커밋 : 확정
             conn.commit()
             logging.info('mysql에 적제 완료')
-            pass
+            
     except Exception as e:
         logging.info(f'적제 오류 : {e}') # 예외 던지기 변경 필요(리뷰)
     finally:
@@ -179,4 +179,4 @@ with DAG(
     )
     # 5. 의존성 정의
     task_create_table >> task_extract >> task_transform >> task_load
-    pass
+    

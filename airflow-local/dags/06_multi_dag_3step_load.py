@@ -60,7 +60,7 @@ def _load(**kwargs):
 
 # 3. DAG 정의
 with DAG(
-    dag_id = '06_multi_dag_1step_load', 
+    dag_id = '06_multi_dag_3step_load', 
     description = "load 적용 dag", 
     default_args = {
         'owner'          : 'de_2team_manager',
@@ -76,3 +76,6 @@ with DAG(
         task_id='load',
         python_callable=_load
     )
+    # 5. 의존성 정의
+    task_create_table >> task_extract >> task_transform >> task_load
+    pass

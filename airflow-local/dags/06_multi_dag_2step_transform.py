@@ -3,8 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 import logging
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from airflow.providers.mysql.hooks.mysql import MySqlHook
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 import json
 import random
 import pandas as pd
@@ -15,10 +14,10 @@ DATA_PATH='/opt/airflow/dags/data'
 os.makedirs(DATA_PATH, exist_ok=True)
 
 def _transform(**kwargs):
-    # _extract에서 추출한 데이터를 XCom을 통해서 획득
-    # 1. XCom을 통해서 이전 task에서 전달한 데이터 획득
-    ti = kwargs['ti'] # 이게 있어야 xcom 접속 가능
-    json_file_path = ti.xcom_pull(task_ids='extract')
+    # _extract에서 추출한 데이터를 다른 DAG에서 전달한 conf를 활용하여 추출 -> "dag_run"
+    # 1. dag_run을 통해서 이전 task에서 전달한 데이터 획득
+    dag_run = kwargs['ti'] 
+    json_file_path = dag_run.conf.get('json_path')
     #로그 출력
     logging.info(f'전달받은 데이터 {json_file_path}')
 
@@ -63,3 +62,16 @@ with DAG(
         python_callable=_transform
 
     )
+
+    task_trigger_load_dag_run=TriggerDagRunOperator(
+        task_id="trigger_load",
+        trigger_dag_id= "06_multi_dag_3step_load",
+        conf={
+            "csv_path" : "{{task_instance.xcom.pull('transform')}}"
+        },
+        reset_dug_time=True,
+        wait_for_completion=False
+    )
+
+    # 의존성
+    task_transform >> task_trigger_load_dag_run
