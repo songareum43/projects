@@ -67,7 +67,7 @@ with DAG(
         task_id="trigger_load",
         trigger_dag_id= "06_multi_dag_3step_load",
         conf={
-            "csv_path" : "{{task_instance.xcom.pull('transform')}}"
+            "csv_path" : "{{task_instance.xcom_pull(task_ids='transform')}}"
         },
         reset_dag_run=True,
         wait_for_completion=False
