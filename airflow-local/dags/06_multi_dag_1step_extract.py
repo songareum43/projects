@@ -74,7 +74,7 @@ with DAG(
         },
         # dag 수행 시간 세팅 => PythonOperator의 작동 시간과 동일하게 맞추겠다 (컨셉)
         # 1개의 dag에서 task 간 시간 차를 유사하게 혹은 거의 동일하게 맞추고자 하는 컨셉
-        reset_dag_run=True,
+        reset_dag_run=True, # 동일한 시간대의 기록이 있더라고 덮어쓰기
 
         # 기타 설정
         # 타 DAG에게 수행하라는 명령을 전달하면 대기 없이 바로 본 task 종료(비동기 처리)
