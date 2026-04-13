@@ -104,18 +104,19 @@ def _load(**kwargs):
         with conn.cursor() as cursor:
         # 4-1. insert 구문 사용
             sql = '''
-                insert into sensor_readings 
+                insert into sensor_readings # 넣을 테이블 이름
                 (sensor_id, timestamp, temperature_c, temperature_f)
-                values (%s, %s, %s, %s) 
+                values (%s, %s, %s, %s) # 값 넣을 칸 만들어두기
                 '''
         # 여러 데이터를 한번에 넣을 때 유용 => executemany() 대응
-            parmas = [
+            # df를 cursor가 읽기 쉬운 형태로 변환
+            params = [
                 (data['sensor_id'], data['timestamp'], 
                 data['temperature'], data['temperature_f'])
-                for _, data in df.iterrows() # 데이터가 없을 때까지 반복 -> 데이터가 한세트씩 추출
+                for _, data in df.iterrows() # 데이터가 없을 때까지 반복 -> 데이터가 한세트씩 추출/ 인덱스 번호 _로 버리기
             ]
-            logging.info(f'입력한 데이터(파라미터) {parmas}')
-            cursor.executemany(sql, parmas) # 한번에 밀어넣기
+            logging.info(f'입력한 데이터(파라미터) {params}')
+            cursor.executemany(sql, params) # 한번에 밀어넣기
             # 4-2. 커밋
             conn.commit()
             logging.info('mysql에 적제 완료')
