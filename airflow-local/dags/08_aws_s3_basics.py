@@ -11,6 +11,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+from airflow.operators.bash import BashOperator
 import logging
 
 # 2. 환경변수 설정
@@ -22,8 +23,55 @@ FILE_NAME = 'hello.txt'
 # 2-3. 업로드할 파일의 로컬 내 위치 -> 컨테이너 기반
 LOCAL_PATH = f'/opt/airflow/dags/data/{FILE_NAME}' 
 
+def _check_s3(**kwargs):
+    # S3HOOK을 통해서 실제 파일이 존재하는지 체크
+    # 1. s3hook 생성
+    hook = S3Hook(aws_conn_id='aws_default')
+    # 2. 훅을 이용하여 모든 키(객체명, 파일명 등) 조회
+    keys=hook.list_keys(bucket_name=BUCKET_NAME)
+    # 3. 키 체크
+    if not keys:
+        raise ValueError('업로드 실패') # 현재 파일만 판단 -> 추후 버킷 내 경로를 디테일하게 세분화 필요
+    # 4. 실제로 존재하면 로그 출력
+    for key in keys:
+        logging.info(f'키 : {key}')
+    
+
 # 3. DAG 정의
+with DAG(
+    dag_id = '08_aws_s3_basics', 
+    description = "aws 연동, s3 업로드", 
+    default_args = {
+        'owner'          : 'de_2team_manager',
+        'retries'        : 1, 
+        'retry_delay'    : timedelta(minutes=1)
+    }, 
+    schedule_interval = '@daily', # 분 시 ... => 매일 오전 09시 00분 스케줄 작동
+    start_date = datetime(2026,2,25),                     
+    catchup = False, 
+    tags = ['aws', 's3']
+) as dag:
 
     # 4. task 정의
+    task_create_file=BashOperator(
+        task_id = "create_file"
+        bash_command=f'echo "hello airflow&s3" > {LOCAL_PATH}'
+    )
+
+    task_upload_to_s3 = LocalFilesystemToS3Operator(
+        task_id="upload_to_s3",
+        filename=LOCAL_PATH,  # 로컬 PC 등 원본 리소스의 위치(파일명 포함)
+        dest_key=FILE_NAME    # s3 특정 버킷 내에 FILE_NAM으로 저장(생성)
+        dest_bucket= BUCKET_NAME, # 버킷 네임
+        aws_conn_id='aws_default', # aws 접속 정보
+        replace=True              # 동일 파일 있으면 덮음
+        )
+
+    task_check_s3 = PythonOperator(
+        task_id="check_s3",
+        python_callable=_check_s3
+    )
 
     # 5. 의존성
+    task_create_file >> task_upload_to_s3 >> task_check_s3
+    
