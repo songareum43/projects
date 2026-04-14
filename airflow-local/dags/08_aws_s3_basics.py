@@ -1,7 +1,7 @@
 '''
 - 원격 PC에서 AWS S3에 데이터를 업로드하는 간단한 DAG
     - 액세스 키가 잘 작동하는지 체크
-    - 데이터량에 따른 수행시간 체크 -> 데이터를 S3에 적제하는 방식에 대한 고민 (직접 or 서비스 이용)\
+    - 데이터량에 따른 수행시간 체크 -> 데이터를 S3에 적제하는 방식에 대한 고민 (직접 or 서비스 이용)
 - 설치(호스트 PC, 로컬 PC 상)
     - pip install apache-airflow-providers-amazon
 '''
@@ -27,6 +27,7 @@ LOCAL_PATH = f'/opt/airflow/dags/data/{FILE_NAME}'
 def _check_s3(**kwargs):
     # S3HOOK을 통해서 실제 파일이 존재하는지 체크
     # 1. s3hook 생성
+    # s3hook은 conn이나 with문 사용할 필요 x => 요청할 때만 알아서 연결하고 종료해줌
     hook = S3Hook(aws_conn_id='aws_default')
     # 2. 훅을 이용하여 모든 키(객체명, 파일명 등) 조회
     keys=hook.list_keys(bucket_name=BUCKET_NAME)
