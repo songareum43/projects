@@ -1,12 +1,15 @@
-# 기본 골격 준비
+'''
+- 평시 -> 잠복하듯 센서 켜고 대기
+- 특정 버킷 혹은 버킷 내 공간을 감시(sensor) -> 파일(객체 등) 업로드 -> 감지 -> DAG 작동
+'''
 
 # 1. 모듈 가져오기
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
-from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-from airflow.operators.bash import BashOperator
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook # s3 키 읽는 용도
+from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor # 감시용 센서
+from airflow.providers.amazon.aws.operators.s3 import S3DeleteObjectsOperator # 특정 데이터(객체) 삭제
 import logging
 
 # 2. 환경변수 설정

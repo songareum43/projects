@@ -8,10 +8,10 @@
 # 1. 모듈 가져오기
 from datetime import datetime, timedelta
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-from airflow.operators.bash import BashOperator
 import logging
 
 # 2. 환경변수 설정

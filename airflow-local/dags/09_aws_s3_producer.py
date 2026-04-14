@@ -1,13 +1,16 @@
-# 기본 골격 준비
+'''
+- 데이터 생산(ETL 등을 통해서) -> csv -> s3 업로드(push) 처리
+'''
 
 # 1. 모듈 가져오기
 from datetime import datetime, timedelta
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-from airflow.operators.bash import BashOperator
 import logging
+
 
 # 2. 환경변수 설정
 
