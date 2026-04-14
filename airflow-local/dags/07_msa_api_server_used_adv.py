@@ -13,6 +13,7 @@ from airflow.providers.mysql.hooks.mysql import MySqlHook
 import logging
 import json
 import requests # api 호출용, MSA 서비스 호출용
+import random
 
 
 # 2. API 서버 주소
@@ -21,15 +22,47 @@ import requests # api 호출용, MSA 서비스 호출용
 API_URL = 'http://ai-api-server:8000/predict' # AI 서비스를 제공하는 컨테이너의 서비스명
 # 4-4. 콜백 함수 정의
 def _create_dummy_data(**kwargs):
-    # 차후 버전은 db 테이블에서 조회 -> 데이터 구성
-    # 현재 버전은 더미 데이터를 임시 구성 xcom 전달하여 다음 task에서 사용
-    users=[
-        {"user_id" : "C001", "income" : 5000, "loan_amt" : 2000},
-        {"user_id" : "C002", "income" : 4000, "loan_amt" : 5000},
-        {"user_id" : "C003", "income" : 8000, "loan_amt" : 1000},
-    ]
-    # xcom으로 전달
-    return users
+    # 더미 데이터를 랜덤하게 구성하여 db에 입력
+    # 차후 프로젝트 구성 -> law 데이터가 어디에 저장되는지(1차 최종 위치 결정, 발생 빈도, 형태) 
+    # -> 도메인 영향(이커머스, 게임, 금융, IOT, 스마트 팩토리..)
+    # DB에서 고객 정보 획득 -> 더미 데이터도 DB에 입력(단, 신용평가는 누락한 데이터)
+# 2. mysqlhook을 이용하여 연결
+    mysqlhook = MySqlHook(mysql_conn_id='mysql_default')
+    with mysqlhook.get_conn() as conn:
+        with conn.cursor() as cursor:
+            # 3. 테이블이 없으면 생성(임시편성) -> 추후 사전 작업으로 이동
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS customers (
+                user_id VARCHAR(50) PRIMARY KEY,
+                income INT DEFAULT NULL,
+                loan_amt INT DEFAULT NULL,
+                credit_score INT DEFAULT NULL,
+                grade VARCHAR(10) DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+            ''')
+            # 4. 편의상 고객 ID가 중복되어서 오류 발생 문제 -> 기존 데이터 삭제 전략 사용
+            # 여러번 테스트할 수 있으므로 임시 편성
+            cursor.execute('truncate table coustomers;')
+
+            # 4. 신용평가 결과 삽입(추후 고객 정보 업데이트로 조정) 
+            sql='''
+                insert into customers # 넣을 테이블 이름
+                (user_id, income, loan_amt)
+                values (%s, %s, %s) # 값 넣을 칸 만들어두기
+                '''
+            params = [ 
+                (
+                    f'C{i:03d}', #고객 아이디, C001 ~ C050
+                    random.randint(3000,10000), # 소득
+                    random.randint(1000,5000) # 대출 규모
+                )
+                    for i in range(1,51)
+                    ]
+            cursor.executemany(sql, params)
+            # 5. 커밋
+            conn.commit()
+            # 6. 연결 종료 : 커서 닫기 -> 커넥션 닫기 : 자동
+
 
 def _extract_data(**kwargs):
     pass
@@ -140,5 +173,5 @@ with DAG(
     )
     
     # 5. 의존성, 각 task는 xcom 통신으로 데이터 공유
-    task_create_dummy_data >> task_api_service_call >> task_load_users_credit
+    task_create_dummy_data # >> task_extract_data >> task_api_service_call >> task_load_users_credit
     
