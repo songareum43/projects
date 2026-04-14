@@ -96,7 +96,7 @@ def _load_users_credit(**kwargs):
 
 # 3. DAG 정의
 with DAG(
-    dag_id = '07_msa_aoi_server_used', 
+    dag_id = '07_msa_api_server_used', 
     description = "MSA 상에 특정 서비스(ai 서빙 컨셉)를 호출하여 신용 평가 수행하는 스케줄링", 
     default_args = {
         'owner'          : 'de_2team_manager',

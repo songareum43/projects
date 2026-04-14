@@ -42,7 +42,7 @@ def _create_dummy_data(**kwargs):
             ''')
             # 4. 편의상 고객 ID가 중복되어서 오류 발생 문제 -> 기존 데이터 삭제 전략 사용
             # 여러번 테스트할 수 있으므로 임시 편성
-            cursor.execute('truncate table coustomers;')
+            cursor.execute('truncate table customers;')
 
             # 4. 신용평가 결과 삽입(추후 고객 정보 업데이트로 조정) 
             sql='''
@@ -65,7 +65,26 @@ def _create_dummy_data(**kwargs):
 
 
 def _extract_data(**kwargs):
-    pass
+    # 현재는 mysql에서 조회하여 획득
+    # 차후 데이터의 위치에 따라 => Athena, opensearch, redshift...조회 => 획득
+    # DB -> MySqlHook -> pandas -> List[dict,dict..]
+    mysqlhook = MySqlHook(mysql_conn_id='mysql_default')
+    # sql -> df 구성
+    # 신용평가 점수가 없는 고생만 대상(향후, 갱신 기간이 도래한 고객까지 포함)
+    df = mysqlhook.get_pandas_df(
+        '''
+        select user_id, income, loan_amt
+        from customers
+        where credit_score is NULL
+        '''
+    )
+    # 결과셋 체크
+    if df.empty:
+        logging.info('신규 고객 없다')
+        return[]
+    # 변환(df -> list[dict...]) -> xcom 전달
+    return df.to_dict(orient='records')
+           
 
 def _api_service_call(**kwargs):
     # xcom에 게시될 때는 키 값이 카멜표기법으로 조정, 추출할 때는 다시 스네이크 표기법 복원
@@ -101,27 +120,19 @@ def _load_users_credit(**kwargs):
         logging.error('신용 평가 결과 없음')
         raise ValueError('신용 평가 결과 없음') # 작업 실패로 표현 -> red 태그 구성
     
+    logging.info(users_grade)
+
     # 2. mysqlhook을 이용하여 연결
     mysqlhook = MySqlHook(mysql_conn_id='mysql_default')
     with mysqlhook.get_conn() as conn:
         with conn.cursor() as cursor:
-    # 3. 테이블이 없으면 생성(임시편성) -> 추후 사전 작업으로 이동
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS customers (
-                user_id VARCHAR(50) PRIMARY KEY,
-                income INT DEFAULT NULL,
-                loan_amt INT DEFAULT NULL,
-                credit_score INT DEFAULT NULL,
-                grade VARCHAR(10) DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
-            ''')
             # 4. 신용평가 결과 삽입(추후 고객 정보 업데이트로 조정) 
             sql='''
-                insert into customers # 넣을 테이블 이름
-                (user_id, credit_score, grade)
-                values (%s, %s, %s) # 값 넣을 칸 만들어두기
+                update customers
+                set credit_score=%s, grade=%s
+                where user_id=%s
                 '''
-            params = [ (data['user_id'], data['credit_score'], data['grade'])
+            params = [(data['credit_score'], data['grade'], data['user_id'])
                         for data in users_grade
                     ]
             cursor.executemany(sql, params)
@@ -134,7 +145,7 @@ def _load_users_credit(**kwargs):
 
 # 3. DAG 정의
 with DAG(
-    dag_id = '07_msa_aoi_server_used', 
+    dag_id = '07_msa_api_server_used_adv', 
     description = "MSA 상에 특정 서비스(ai 서빙 컨셉)를 호출하여 신용 평가 수행하는 스케줄링", 
     default_args = {
         'owner'          : 'de_2team_manager',
