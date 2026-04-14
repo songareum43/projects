@@ -1,5 +1,8 @@
 '''
-- API 호출 과정 적용, 데이터 처리에 대한 스케줄 구성
+- 기존 07.. DAG 업그레이드
+- 고객 데이터는 사전에 디비에 입력해둠(신용평가 부분만 제외) -> 파이썬오퍼레이터 추가
+- 고객 데이터는 조회하여 평가 요청으로 변경
+- 신용 평가 내용을 update -> sql을 통해서 반영
 '''
 
 # 1. 모듈 가져오기
@@ -28,6 +31,8 @@ def _create_dummy_data(**kwargs):
     # xcom으로 전달
     return users
 
+def _extract_data(**kwargs):
+    pass
 
 def _api_service_call(**kwargs):
     # xcom에 게시될 때는 키 값이 카멜표기법으로 조정, 추출할 때는 다시 스네이크 표기법 복원
@@ -109,10 +114,17 @@ with DAG(
     tags = ['msa', 'fastapi']
 ) as dag:
     # 4. Task 정의
-    # 4-1. 더미 데이터 준비 -> 추후 고객 정보 저장 -> 추후 s3 업로드
+    # 4-0. 더미데이터 준비 -> DB에 직접 입력(편의상 구성)
     task_create_dummy_data = PythonOperator(
         task_id = "task_create_dummy_data",
         python_callable= _create_dummy_data
+    )
+
+
+    # 4-1. 고객 데이터 획득(extract) -> select 쿼리 조회 
+    task_extract_data = PythonOperator(
+        task_id = "task_extract_data",
+        python_callable= _extract_data
     )
 
     # 4-2. API 호출(AI 서비스 활용) -> 신용 평가 획득
