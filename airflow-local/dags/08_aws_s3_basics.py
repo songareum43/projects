@@ -6,3 +6,24 @@
     - pip install apache-airflow-providers-amazon
 '''
 # 1. 모듈 가져오기
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.transfers.local_to_s3 import LocalFilesystemToS3Operator
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+import logging
+
+# 2. 환경변수 설정
+# 2-1. 버킷명(iam 계정-827913617635(루트 계정 ID)-리전(ap-northeast-2)-an)
+BUCKET_NAME = "de-ai-09-827913617635-ap-northeast-2-an" # 글로벌하게 고유한 이름 사용
+
+# 2-2. 업로드할 파일명 준비
+FILE_NAME = 'hello.txt'
+# 2-3. 업로드할 파일의 로컬 내 위치 -> 컨테이너 기반
+LOCAL_PATH = f'/opt/airflow/dags/data/{FILE_NAME}' 
+
+# 3. DAG 정의
+
+    # 4. task 정의
+
+    # 5. 의존성
