@@ -11,8 +11,9 @@ import json
 import requests # api 호출용, MSA 서비스 호출용
 
 # 2. API 서버 주소
-API_URL = 'http://127.0.0.1:8000/predict'
-
+# 특정 컨테이너의 서비스명으로 URL 조정 -> 해당 컨테이너로 요청 전달
+# API_URL = 'http://127.0.0.1:8000/predict' # 현 코드가 작동중인 컨테이너 의미
+API_URL = 'http:/ai-api-server:8000/predict' # AI 서비스를 제공하는 컨테이너의 서비스명
 # 4-4. 콜백 함수 정의
 def _create_dummy_data(**kwargs):
     # 차후 버전은 db 테이블에서 조회 -> 데이터 구성
@@ -27,9 +28,11 @@ def _create_dummy_data(**kwargs):
 
 
 def _api_service_call(**kwargs):
+    # xcom에 게시될 때는 키 값이 카멜표기법으로 조정, 추출할 때는 다시 스네이크 표기법 복원
     # 1. 이전 task의 결과물 획득 (차후 -> 데이터레이크(s3), athena, redshif, opensearch(엘라스틱 서치 aws 버전)등 서비스를 통해 획득)
     ti = kwargs['ti']
     users_data = ti.xcom_pull(task_ids="task_create_dummy_data")
+    logging.info(f'요청시 전달 데이터 {users_data}')
     # 2. 신용 평가 요청 및 응답 -> API 호출(차후 LLM 모델과 연계 가능) -> 통신 -> I.O -> 예외 처리
     try:
         # 3. post 방식 요청, dict 형태 데이터 첨부 -> json 형태로 전달(내부적으로는 객체 직렬화 처리됨)
