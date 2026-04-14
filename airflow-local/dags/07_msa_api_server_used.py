@@ -16,6 +16,7 @@ import requests # api 호출용, MSA 서비스 호출용
 # 특정 컨테이너의 서비스명으로 URL 조정 -> 해당 컨테이너로 요청 전달
 # API_URL = 'http://127.0.0.1:8000/predict' # 현 코드가 작동중인 컨테이너 의미
 API_URL = 'http://ai-api-server:8000/predict' # AI 서비스를 제공하는 컨테이너의 서비스명
+
 # 4-4. 콜백 함수 정의
 def _create_dummy_data(**kwargs):
     # 차후 버전은 db 테이블에서 조회 -> 데이터 구성
@@ -67,7 +68,8 @@ def _load_users_credit(**kwargs):
     mysqlhook = MySqlHook(mysql_conn_id='mysql_default')
     with mysqlhook.get_conn() as conn:
         with conn.cursor() as cursor:
-    # 3. 테이블이 없으면 생성(임시편성) -> 추후 사전 작업으로 이동
+            # 3. 테이블이 없으면 생성(임시편성) -> 추후 사전 작업으로 이동
+            # execute() -> sql문 1번 실행할 때 유용 (파이썬 내부에서 실행 가능/자유도 높음) 
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS customers (
                 user_id VARCHAR(50) PRIMARY KEY,
@@ -86,6 +88,7 @@ def _load_users_credit(**kwargs):
             params = [ (data['user_id'], data['credit_score'], data['grade'])
                         for data in users_grade
                     ]
+            # executemany() : 대용량 sql 한번에 처리 가능
             cursor.executemany(sql, params)
             # 5. 커밋
             conn.commit()

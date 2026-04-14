@@ -27,7 +27,7 @@ def _create_dummy_data(**kwargs):
     # 차후 프로젝트 구성 -> law 데이터가 어디에 저장되는지(1차 최종 위치 결정, 발생 빈도, 형태) 
     # -> 도메인 영향(이커머스, 게임, 금융, IOT, 스마트 팩토리..)
     # DB에서 고객 정보 획득 -> 더미 데이터도 DB에 입력(단, 신용평가는 누락한 데이터)
-# 2. mysqlhook을 이용하여 연결
+    # 2. mysqlhook을 이용하여 연결
     mysqlhook = MySqlHook(mysql_conn_id='mysql_default')
     with mysqlhook.get_conn() as conn:
         with conn.cursor() as cursor:
@@ -43,6 +43,7 @@ def _create_dummy_data(**kwargs):
             ''')
             # 4. 편의상 고객 ID가 중복되어서 오류 발생 문제 -> 기존 데이터 삭제 전략 사용
             # 여러번 테스트할 수 있으므로 임시 편성
+            # -> truncate : 기본 뼈대만 남기고 안에 있는 데이터 빠르게 삭제
             cursor.execute('truncate table customers;')
 
             # 4. 신용평가 결과 삽입(추후 고객 정보 업데이트로 조정) 
@@ -72,6 +73,8 @@ def _extract_data(**kwargs):
     mysqlhook = MySqlHook(mysql_conn_id='mysql_default')
     # sql -> df 구성
     # 신용평가 점수가 없는 고생만 대상(향후, 갱신 기간이 도래한 고객까지 포함)
+    # conn을 연결하지 않아도 되는 이유 : mysqlhook.get_pandas_df() -> 데이터를 가져올 때 얘가 알아서 연결해준다...!
+    # conn을 연결해야 하는 상황 : 직접 수동으로 명령만 내릴 때(execute)
     df = mysqlhook.get_pandas_df(
         '''
         select user_id, income, loan_amt
@@ -84,6 +87,7 @@ def _extract_data(**kwargs):
         logging.info('신규 고객 없다')
         return[]
     # 변환(df -> list[dict...]) -> xcom 전달
+    # orient='records' -> 행 기반 리스트로 담아줘
     return df.to_dict(orient='records')
            
 
