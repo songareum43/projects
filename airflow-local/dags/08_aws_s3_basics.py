@@ -20,6 +20,7 @@ BUCKET_NAME = "de-ai-09-827913617635-ap-northeast-2-an" # 글로벌하게 고유
 
 # 2-2. 업로드할 파일명 준비
 FILE_NAME = 'hello.txt'
+
 # 2-3. 업로드할 파일의 로컬 내 위치 -> 컨테이너 기반
 LOCAL_PATH = f'/opt/airflow/dags/data/{FILE_NAME}' 
 
@@ -53,15 +54,15 @@ with DAG(
 ) as dag:
 
     # 4. task 정의
-    task_create_file=BashOperator(
-        task_id = "create_file"
-        bash_command=f'echo "hello airflow&s3" > {LOCAL_PATH}'
-    )
+    #task_create_file=BashOperator(
+    #    task_id = "create_file",
+    #    bash_command=f'echo "hello airflow & s3" > {LOCAL_PATH}'
+    #)
 
     task_upload_to_s3 = LocalFilesystemToS3Operator(
         task_id="upload_to_s3",
         filename=LOCAL_PATH,  # 로컬 PC 등 원본 리소스의 위치(파일명 포함)
-        dest_key=FILE_NAME    # s3 특정 버킷 내에 FILE_NAM으로 저장(생성)
+        dest_key=FILE_NAME,   # s3 특정 버킷 내에 FILE_NAM으로 저장(생성)
         dest_bucket= BUCKET_NAME, # 버킷 네임
         aws_conn_id='aws_default', # aws 접속 정보
         replace=True              # 동일 파일 있으면 덮음
@@ -73,5 +74,6 @@ with DAG(
     )
 
     # 5. 의존성
-    task_create_file >> task_upload_to_s3 >> task_check_s3
+    # task_create_file >> 
+    task_upload_to_s3 >> task_check_s3
     
