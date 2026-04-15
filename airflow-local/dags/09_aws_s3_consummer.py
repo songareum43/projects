@@ -21,7 +21,15 @@ S3_KEY=f'income/{FILE_NAME}'
     
 
 # 4-1. 콜백 함수
-
+def _reading_data(**kwargs):
+    # s3 훅 사용
+    hook = S3Hook(aws_conn_id="aws_default")
+    # 읽기(비지니스)
+    data = hook.read_key(key=S3_KEY, bucket_name=BUCKET_NAME)
+    # 로그 출력
+    logging.info('--로그 출력 시작--')
+    logging.info(data)
+    logging.info('--로그 출력 시작--')
 
 # 3. DAG 정의
 with DAG(
@@ -41,13 +49,31 @@ with DAG(
     # 4. task 정의
 
     # 감시자(센서, 옵저버)
-    task_waitting_trigger = S3KeySensor()
+    task_waitting_trigger = S3KeySensor(
+        task_id = "task_waitting_trigger",
+        # 감시 대상 설정
+        bucket_key= S3_KEY, # 버킷 내 타겟
+        bucket_name=BUCKET_NAME, # 버킷 이름
+        aws_conn_id= 'aws_default', # 접속 정보
+        # 감시 방법
+        mode = 'reschedule', # 대기 중에 자원 반납
+        pock_interval = 10, # 10초 간격으로 체크(주기에 따라 자원 사용 차이 발생)
+        timeout = 60*10, # 서비스 가동 후(스케줄에 의해) 10분 넘게 감지가 안되면 종료
+    )
 
     # 뭔가 작업(비지니스)
-    task_reading_data = PythonOperator()
+    task_reading_data = PythonOperator(
+        task_id = "task_reading_data",
+        python_callable=_reading_data
+    )
 
     # 파일(키) 삭제 / 필요시 특정 위치 보관 -> 뒷처리
-    task_delete_data_or_backup = S3DeleteObjectsOperator()
+    task_delete_data_or_backup = S3DeleteObjectsOperator(
+        task_id = "task_delete_data_or_backup",
+        bucket=BUCKET_NAME,
+        keys= [S3_KEY], # 삭제 대상, n개 지정 가능
+        aws_conn_id= 'aws_default'
+    )
 
 
     # 5. 의존성
