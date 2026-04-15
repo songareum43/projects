@@ -7,11 +7,15 @@ import time
 # 현재 워킹디렉토리에서 코드를 작동할 때 경로
 from log_generator import LogGenerator
 
-def make_log(config):
+def make_log(config):  # config는 매개 변수의 별명 -> 함수 안으로 들어오면 그 매개변수의 이름은 config로 간주
     log_gen = LogGenerator()
     log_gen_map={
    "finance":log_gen.finance, # 함수 주소값 세팅
-   "factory":log_gen.factory, # 리뷰 때 추가 완성
+   "factory":log_gen.factory,
+   "ecommerce":log_gen.ecommerce,
+   "iot":log_gen.iot,
+   "ott":log_gen.ott,
+   "lol_game":log_gen.lol_game
 } 
     print(f'{config["target_industry"]} 로그 생성 시작')
     print('-'*50)
