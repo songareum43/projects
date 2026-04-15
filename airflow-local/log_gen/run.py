@@ -7,12 +7,6 @@ import time
 # 현재 워킹디렉토리에서 코드를 작동할 때 경로
 from log_generator import LogGenerator
 
-log_gen = LogGenerator()
-log_gen_map={
-   "finance":log_gen.finance(),
-   "factory":log_gen.factory() # 리뷰 때 추가 완성
-} 
-
 def make_log(config):
     log_gen = LogGenerator()
     log_gen_map={
