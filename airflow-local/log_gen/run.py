@@ -28,6 +28,12 @@ def make_log(config):
         # break
     print('-'*50)
 
+log_gen_g = LogGenerator()
+def make_one_log():
+    return json.dumps(log_gen_g.finance(), ensure_ascii=False) # dict -> str : 객체 직렬화
+
+
+
 if __name__=="__main__":
     config = {
        "target_industry":"finance", # finance, IOT..., game_lol
