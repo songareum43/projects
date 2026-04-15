@@ -57,9 +57,9 @@ with DAG(
         bucket_name=BUCKET_NAME, # 버킷 이름
         aws_conn_id= 'aws_default', # 접속 정보
         # 감시 방법
-        mode = 'reschedule', # 대기 중에 자원 반납
+        mode = 'reschedule', # poke_interval 사이에 대기 중일 때 자원 반납
         poke_interval = 10, # 10초 간격으로 체크(주기에 따라 자원 사용 차이 발생)
-        timeout = 60*10, # 서비스 가동 후(스케줄에 의해) 10분 넘게 감지가 안되면 종료
+        timeout = 60*10, # 서비스 가동 후(스케줄에 의해) 10분 넘게 감지가 안되면 종료(이 task 실패 처리)
     )
 
     # 뭔가 작업(비지니스)
@@ -72,7 +72,7 @@ with DAG(
     task_delete_data_or_backup = S3DeleteObjectsOperator(
         task_id = "task_delete_data_or_backup",
         bucket=BUCKET_NAME,
-        keys= [S3_KEY], # 삭제 대상, n개 지정 가능
+        keys= [S3_KEY], # S3DeleteObjectsOperator()는 여러 key를 지우기 위해 리스트 형태로 받음 => []없이 사용하면 에러 발생
         aws_conn_id= 'aws_default'
     )
 

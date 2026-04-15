@@ -44,6 +44,7 @@ with DAG(
         task_id = "task_create_dummy_data_csv",
         bash_command=f'echo "id,timestamp,value\n1,$(date),100\n2,$(date),500" > {LOCAL_PATH}'
     )
+    # $(date) : 리눅스 명령어로 인한 날짜 실행
 
     task_upload_to_s3 = LocalFilesystemToS3Operator(
         task_id = "task_upload_to_s3",
