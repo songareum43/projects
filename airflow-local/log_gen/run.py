@@ -16,8 +16,8 @@ def make_log(config):
     print(f'{config["target_industry"]} 로그 생성 시작')
     print('-'*50)
     for i in range(config["total_count"]): # loop 옵션은 리뷰 때 수정 시도
-    # log = log_gen.finance
-        cur_func = log_gen_map.get(config['target_industry'])
+        # log = log_gen.finance
+        cur_func = log_gen_map.get(config['target_industry']) # .get 사용시 오류에 대한 대처 가능 return 값 : None
         log = cur_func()
         # ensure_ascii 이스케이프 문자들 변환없이 있는 그대로 출력하는가?
         log_json = json.dumps(log, ensure_ascii=False)
