@@ -80,4 +80,4 @@ with DAG(
     # 5. 의존성
     # 센서 감지 -> 작업 -> 키 제거 -> 특정 위치는 최초 상태로 돌아간다
     task_waitting_trigger >> task_reading_data >> task_delete_data_or_backup
-    pass
+    
