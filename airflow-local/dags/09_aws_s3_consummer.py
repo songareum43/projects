@@ -40,7 +40,8 @@ with DAG(
         'retries'        : 1, 
         'retry_delay'    : timedelta(minutes=1)
     }, 
-    schedule_interval = None, # DAG는 활성화 정도만 구성, 센서 작동에 스케줄이 필요한지 테스트
+    # 최소 스케줄은 필요함 -> None x
+    schedule_interval = '@daily', # DAG는 활성화 정도만 구성, 센서 작동에 스케줄이 필요한지 확인
     start_date = datetime(2026,2,25),                     
     catchup = False, 
     tags = ['aws', 's3', 'consummer']
@@ -57,7 +58,7 @@ with DAG(
         aws_conn_id= 'aws_default', # 접속 정보
         # 감시 방법
         mode = 'reschedule', # 대기 중에 자원 반납
-        pock_interval = 10, # 10초 간격으로 체크(주기에 따라 자원 사용 차이 발생)
+        poke_interval = 10, # 10초 간격으로 체크(주기에 따라 자원 사용 차이 발생)
         timeout = 60*10, # 서비스 가동 후(스케줄에 의해) 10분 넘게 감지가 안되면 종료
     )
 
