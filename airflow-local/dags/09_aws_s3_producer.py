@@ -40,20 +40,19 @@ with DAG(
 ) as dag:
 
     # 4. 오퍼레이터를 통한 task 정의
-    task_create_dummy_data_csv=PythonOperator(
+    task_create_dummy_data_csv = BashOperator(
         task_id = "task_create_dummy_data_csv",
         bash_command=f'echo "id,timestamp,value\n1,$(date),100\n2,$(date),500" > {LOCAL_PATH}'
     )
 
-    task_upload_to_s3=LocalFilesystemToS3Operator(
+    task_upload_to_s3 = LocalFilesystemToS3Operator(
         task_id = "task_upload_to_s3",
         filename=LOCAL_PATH,  
         dest_key=S3_KEY,   # 버킷 내 특정 위치
         dest_bucket= BUCKET_NAME, 
         aws_conn_id='aws_default', 
-        replace=True              # 동일 파일 있으면 덮음 -> 그 순간 파일은 1개
+        replace=True  # 동일 파일 있으면 덮음 -> 그 순간 파일은 1개
         )
 
     # 5. 의존성
     task_create_dummy_data_csv >> task_upload_to_s3
-    pass
