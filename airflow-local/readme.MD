@@ -26,3 +26,9 @@ https://github.com/edu-kenshi/airflow-local/tree/main
         L run.py : 생성 코드 샘플
     ```
     - 산업별(금융, 이커머스..) 로그 생성 클래스 모듈
+    - 실행
+    ```
+        # 워킹 디렉토리(작업 폴더) -> 엔트리 포인트
+        cd log_gen
+        ~/log_gen > python run.py
+    ```
