@@ -56,21 +56,14 @@ try:
     while True:
         # 데이터 생성
         data = gen_stock_data()
-        print(f'전송 전:{data}')
-        # kinesis 전달
         kinesis.put_record(
-            # 스트림 이름
-            StreamName = 'de-ai-09-an2-kds-stock-analysis', 
-            # 데이터(객체 직렬화하여 문자열 제공)
+            # TODO:Flink 스트림 이름 수정
+            StreamName = 'de-ai-09-an2-kds-stock-input', 
             Data = json.dumps(data),
-            # 티커별로 샤드(고속도로의 차선) 분산하여 kinesis에 전달
-            # 티커가 6개이므로 샤드를 6개(6차선 도로를 구성, 6개의 줄기를 구성)로 하여 개별 데이터 전송
-            PartitionKey = data['ticker'] # 해당 컬럼의 고유값의 개수만큼 조각(샤드, 전용 차선) 구성
+            PartitionKey = data['ticker'] 
         )
-        # 로그
         print(f"전송:{data}")
-        # 잠시 대기
-        time.sleep(0.5) # 0.5초 대기
+        time.sleep(0.5)
         
 except Exception as e:
     print('중단', e)
