@@ -68,10 +68,15 @@ def main():
     
     # 4. 연산(전처리, 가공, 분석(요구사항에 맞게) 처리한 형태) 및 전송(kds(output))
     t_env.execute_sql('''
-                      ''')
+        INSERT INTO stock_output
+        SELECT ticker, 
+               AVG(price) as avg_price, 
+               TUMBLE_END(event_time, INTERVAL '10' SECOND) as avg_time
+        FROM stock_input
+        GROUP BY TUMBLE_END(event_time, INTERVAL '10' SECOND), ticker
     
-    pass
-
+    ''').wait() # 쿼리 처리가 완료될 때까지 기다림
+    
 # 단독형 앱 => 엔트리 포인트 표기 필요
 if __name__ == "__main__":
     main()
