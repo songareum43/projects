@@ -19,13 +19,44 @@ def main():
     # SQL과 유사한 방식으로 데이터를 다룰 수 있는 객체
     t_env=TableEnvironment(setting)
 
+    '''
+        로그 원문 1개
+        {'event_time': '2026-04-16T11:23:13.825899', 
+         'ticker': 'TSLA', 
+         'price': 466.14, 
+         'volume': 8, 
+         'trade_id': 365929}
+    '''
+
     # 2. 입력데이터에 대한 테이블 구성(kds로부터(input)데이터를 읽기 처리 -> 어딘가에 담는다 -> 테이블 필요)
-    # 티커, 가격, 로그 발생 시간, ..
+    # 티커, 가격, 로그 발생 시간, .
+    # 입력데이터에 대한 테이블에 kds가 연결되어 있어야 함
+    t_env.execute_sql('''
+        create table stock_input(
+            tiker STRING,
+            price DOUBLE,
+            event_time TIMESTAMP(3),
+            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND           
+        ) with(
+            "connector":"kinesis,
+            "stream":"de-ai-30-an2-kds-stock-input",
+            "aws.region":"ap-northeast-2",
+            "scan.stream.initpos"="LATEST", 
+            "format":"json"                        
+        )
+    ''')
 
     # 3. 출력데이터에 대한 테이블 구성(kds로부터(output)데이터를 읽기 처리 -> 어딘가에 담는다 -> 테이블 필요)
     # 티거, 평균 가격, 생성시간
-
+    # 출력데이터에 대한 테이블에 kds가 연결되어 있어야 함
+    t_env.execute_sql('''
+        create table stock_input() with()
+                      ''')
+    
     # 4. 연산(전처리, 가공, 분석(요구사항에 맞게) 처리한 형태) 및 전송(kds(output))
+    t_env.execute_sql('''
+                      ''')
+    
     pass
 
 # 단독형 앱 => 엔트리 포인트 표기 필요
