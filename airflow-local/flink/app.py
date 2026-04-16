@@ -13,14 +13,16 @@
 
 import os
 from pyflink.table import EnvironmentSettings, TableEnvironment
+# EnvironmentSettings : 플링크에 대한 설정 세팅
+# TableEnvironment : 테이블 생성, 쿼리, 내보내기 다 가능
 
 def main():
     # 1. 환경설정, 스트리밍 데이터 처리 방식에 대한 구성
     # conf = EnvironmentSettings()
     # conf.a() -> 인스턴스 함수
     # 데이터를 한번에 일괄 처리 => 배치 방식, 실시간(지속적) 데이터를 처리 => 스트리밍 방식 (O)
-    setting = EnvironmentSettings.new_instance().in_streaming_mode().build()
-    # SQL과 유사한 방식으로 데이터를 다룰 수 있는 객체
+    setting = EnvironmentSettings.new_instance().in_streaming_mode().build() # 세팅 값에 대한 설계도(객체) 생성
+    # SQL과 유사한 방식으로 데이터를 다룰 수 있는 실행 객체 생성
     t_env=TableEnvironment(setting)
 
     '''
@@ -33,24 +35,26 @@ def main():
     '''
 
     # 2. 입력데이터에 대한 테이블 구성(kds로부터(input)데이터를 읽기 처리 -> 어딘가에 담는다 -> 테이블 필요)
+    # 여기에서 테이블이란 들어온 정보에 대한 구조 정보를 이해하는 과정?!으로 보는 게 좋음
     # 티커, 가격, 로그 발생 시간, .
     # 입력데이터에 대한 테이블에 kds가 연결되어 있어야 함
     t_env.execute_sql('''
         create table stock_input(
             tiker STRING,
-            price DOUBLE,
-            event_time TIMESTAMP(3),
-            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND           
+            price DOUBLE,  # 정밀한 실수
+            event_time TIMESTAMP(3),  # 소수점 셋째 자리 => 밀리초 단위
+            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND # 늦게 들어온 데이터 5초까지 기다려주기          
         ) with(
             "connector":"kinesis,
             "stream":"de-ai-09-an2-kds-stock-input",
             "aws.region":"ap-northeast-2",
-            "scan.stream.initpos"="LATEST", 
+            "scan.stream.initpos"="LATEST", # 작동 시점부터 데이터 읽기
             "format":"json"                        
         )
     ''')
 
     # 3. 출력데이터에 대한 테이블 구성(kds로부터(output)데이터를 읽기 처리 -> 어딘가에 담는다 -> 테이블 필요)
+    # 내보내는 데이터에 대한 규칙? 정하는 테이블
     # 티거, 평균 가격, 생성시간
     # 출력데이터에 대한 테이블에 kds가 연결되어 있어야 함
     t_env.execute_sql('''
