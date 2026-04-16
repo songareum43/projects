@@ -56,7 +56,6 @@ try:
     while True:
         # 데이터 생성
         data = gen_stock_data()
-        print(f'전송 전:{data}')
         # kinesis 전달
         kinesis.put_record(
             # 스트림 이름
