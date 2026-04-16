@@ -41,14 +41,14 @@ def main():
     t_env.execute_sql('''
         create table stock_input(
             tiker STRING,
-            price DOUBLE,  # 정밀한 실수
-            event_time TIMESTAMP(3),  # 소수점 셋째 자리 => 밀리초 단위
-            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND # 늦게 들어온 데이터 5초까지 기다려주기          
+            price DOUBLE,  -- 정밀한 실수
+            event_time TIMESTAMP(3),  -- 소수점 셋째 자리 => 밀리초 단위
+            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
         ) with(
             "connector":"kinesis,
             "stream":"de-ai-09-an2-kds-stock-input",
             "aws.region":"ap-northeast-2",
-            "scan.stream.initpos"="LATEST", # 작동 시점부터 데이터 읽기
+            "scan.stream.initpos"="LATEST", -- 작동 시점부터 데이터 읽기
             "format":"json"                        
         )
     ''')
