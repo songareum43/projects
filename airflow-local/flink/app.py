@@ -43,7 +43,7 @@ def main():
             WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND           
         ) with(
             "connector":"kinesis,
-            "stream":"de-ai-30-an2-kds-stock-input",
+            "stream":"de-ai-09-an2-kds-stock-input",
             "aws.region":"ap-northeast-2",
             "scan.stream.initpos"="LATEST", 
             "format":"json"                        
@@ -60,7 +60,7 @@ def main():
             avg_time TIMESTAMP(3)     
         ) with(
             "connector":"kinesis,
-            "stream":"de-ai-30-an2-kds-stock-output",
+            "stream":"de-ai-09-an2-kds-stock-output",
             "aws.region":"ap-northeast-2", 
             "format":"json"                        
         )
