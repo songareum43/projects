@@ -24,11 +24,12 @@ import logging
 # 2. 환경 변수
 BUCKET_NAME='de-ai-09-827913617635-ap-northeast-2-an'
 ATHENA_DB_NAME='de-ai-09-an2-glue-db'
-SRC_NAME='s3_exam_cav'
-TARGET_TABLE = 'pass_student'
+SRC_NAME='s3_exam_cav' # 참고 테이블 => CTAS 과정에서는 원본 테이블이 없으면 데이터를 읽을 수 없기 때문에 꼭 필요! (데이터 자체가 있는 저장소 경로도 다 나와있음)
+TARGET_TABLE = 'pass_student' 
 # 메타 정보, 임시 정보 필요시 저장/삭제 공간으로 활용
-S3_TARGET_LOC = f's3://{BUCKET_NAME}/athena/tbl/{TARGET_TABLE}/'
-S3_QUERY_LOG_LOC = f's3://{BUCKET_NAME}/athena/query_logs/'
+S3_TARGET_LOC = f's3://{BUCKET_NAME}/athena/tbl/{TARGET_TABLE}/' # 새 데이터 파일이 저장될 곳
+S3_QUERY_LOG_LOC = f's3://{BUCKET_NAME}/athena/query_logs/'  # 쿼리한 기록 로그가 저장되는 곳
+# LOcation :  폴더를 가르킴
 
 # 3. DAG 정의
 with DAG(
@@ -42,7 +43,7 @@ with DAG(
     schedule_interval = None, 
     start_date = datetime(2026,2,25),                     
     catchup = False, 
-    tags = ['aws', 's3', 'athena', 'ctas']
+    tags = ['aws', 's3', 'athena', 'ctas'] # ctas 조회를 바탕으로 테이블 생성
 ) as dag:
 
     # 4. task 정의
@@ -53,7 +54,7 @@ with DAG(
     t1 = S3DeleteObjectsOperator(
         task_id = "clean_s3_target", # 작업 ID
         bucket = BUCKET_NAME, # 버킷 이름
-        prefix= f'athena/tbl/{TARGET_TABLE}/',
+        prefix= f'athena/tbl/{TARGET_TABLE}/', # 지울 폴더 경로 지정 / 파일만 지우고 싶을 때는 keys 사용
         aws_conn_id='aws_default' # 접속 정보
     )
 
@@ -76,7 +77,7 @@ with DAG(
         with(
             format = 'PARQUET',
             parquet_compression = 'GZIP',
-            external_location = {S3_TARGET_LOC}
+            external_location = {S3_TARGET_LOC} # 쿼리 후 진짜 데이터 저장 경로 지정
         as
         select id,name,score,created_at
         from {ATHENA_DB_NAME}.{SRC_NAME}
@@ -87,7 +88,7 @@ with DAG(
         task_id = 'create_table_format_parquet',
         query=query,
         database = ATHENA_DB_NAME,
-        output_location = S3_QUERY_LOG_LOC,
+        output_location = S3_QUERY_LOG_LOC, # 로그들 저장할 경로 지정
         aws_conn_id = 'aws_default',
         do_xcom_push = True # 테이블 만들어졌나 센서 가동 조건으로 xom 활용
         # xcom을 통해서 TARGET_TABLE이 생성되었는지 체크 -> 확인 -> t4 내 기타 처리 등 활용
@@ -99,7 +100,7 @@ with DAG(
     t4=AthenaSensor(
         task_id = 'sencor',
         # 앞 테스크 감시
-        query_execution_id = "{{task_instance.xcom_pull(task_ids='create_table_format_parquet')}}",
+        query_execution_id = "{{task_instance.xcom_pull(task_ids='create_table_format_parquet')}}", # query_execution_id : 쿼리 실행할 때마다 생기는 고유의 id 값
         poke_interval = 10, # 10초 간격
         timeout = 600, # 최대 대기 시간, 10분
         aws_conn_id = 'aws_default'
