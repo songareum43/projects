@@ -60,7 +60,7 @@ with DAG(
     # 임시로 사용한 테이블 삭제 -> 클린
     t2=AthenaOperator(
         task_id = 'drop_table',
-        query = f'drop table if exsist{ATHENA_DB_NAME}.{TARGET_TABLE}',
+        query = f'drop table if exists {ATHENA_DB_NAME}.{TARGET_TABLE}',
         database = ATHENA_DB_NAME,
         output_location = S3_QUERY_LOG_LOC,  # 쿼리 수행 결과 로그 저장 위치
         aws_conn_id='aws_default'
