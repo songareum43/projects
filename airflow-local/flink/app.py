@@ -40,7 +40,7 @@ def main():
     # 입력데이터에 대한 테이블에 kds가 연결되어 있어야 함
     t_env.execute_sql('''
         CREATE TABLE stock_input(
-            tiker STRING,
+            ticker STRING,
             price DOUBLE,  -- 정밀한 실수
             event_time TIMESTAMP(3),  -- 소수점 셋째 자리 => 밀리초 단위
             WATERMARK FOR event_time AS event_time - INTERVAL '1' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
@@ -59,7 +59,7 @@ def main():
     # 출력데이터에 대한 테이블에 kds가 연결되어 있어야 함
     t_env.execute_sql('''
         CREATE TABLE stock_output(
-            tiker STRING,
+            ticker STRING,
             avg_price DOUBLE,
             avg_time TIMESTAMP(3)     
         ) WITH(
