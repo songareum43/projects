@@ -9,31 +9,31 @@ t_env=TableEnvironment.create(setting)
 # st_env => 자체적으로 준비되어 있는 객체 사용(전역 변수)
 # 1. 입력 테이블 정의
 st_env.execute_sql('''
-        create table stock_input(
+        CREATE TABLE stock_input(
             tiker STRING,
-            price DOUBLE,  
-            event_time TIMESTAMP(3), 
-            WATERMARK FOR event_time AS event_time - INTERVAL '1' SECOND          
+            price DOUBLE,  -- 정밀한 실수
+            event_time TIMESTAMP(3),  -- 소수점 셋째 자리 => 밀리초 단위
+            WATERMARK FOR event_time AS event_time - INTERVAL '1' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
         ) WITH(
-            "connector":"kinesis",
-            "stream":"de-ai-09-an2-kds-stock-input",
-            "aws.region":"ap-northeast-2",
-            "scan.stream.initpos"="LATEST", 
-            "format":"json"                        
+            'connector'='kinesis',
+            'stream'='de-ai-09-an2-kds-stock-input',
+            'aws.region'='ap-northeast-2',
+            'scan.stream.initpos'='LATEST', -- 작동 시점부터 데이터 읽기
+            'format'='json'                        
         )
-    '')
+    ''')
 
 # 2. 출력 테이블 정의
 st_env.execute_sql('''
-        create table stock_output(
+        CREATE TABLE stock_output(
             tiker STRING,
             avg_price DOUBLE,
             avg_time TIMESTAMP(3)     
         ) WITH(
-            "connector":"kinesis",
-            "stream":"de-ai-09-an2-kds-stock-output",
-            "aws.region":"ap-northeast-2", 
-            "format":"json"                        
+            'connector'='kinesis',
+            'stream'='de-ai-09-an2-kds-stock-output',
+            'aws.region'='ap-northeast-2', 
+            'format'= 'json'                        
         )
     ''')
 
@@ -46,4 +46,4 @@ st_env.execute_sql('''
         FROM stock_input
         GROUP BY TUMBLE(event_time, INTERVAL '10' SECOND), ticker
     
-    ''')
+    ''').wait()
