@@ -10,7 +10,7 @@ t_env=TableEnvironment.create(setting)
 # 1. 입력 테이블 정의
 st_env.execute_sql('''
         CREATE TABLE stock_input(
-            tiker STRING,
+            ticker STRING,
             price DOUBLE,  -- 정밀한 실수
             event_time TIMESTAMP(3),  -- 소수점 셋째 자리 => 밀리초 단위
             WATERMARK FOR event_time AS event_time - INTERVAL '1' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
@@ -26,7 +26,7 @@ st_env.execute_sql('''
 # 2. 출력 테이블 정의
 st_env.execute_sql('''
         CREATE TABLE stock_output(
-            tiker STRING,
+            ticker STRING,
             avg_price DOUBLE,
             avg_time TIMESTAMP(3)     
         ) WITH(
