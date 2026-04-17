@@ -39,17 +39,17 @@ def main():
     # 티커, 가격, 로그 발생 시간, .
     # 입력데이터에 대한 테이블에 kds가 연결되어 있어야 함
     t_env.execute_sql('''
-        create table stock_input(
+        CREATE TABLE stock_input(
             tiker STRING,
             price DOUBLE,  -- 정밀한 실수
             event_time TIMESTAMP(3),  -- 소수점 셋째 자리 => 밀리초 단위
             WATERMARK FOR event_time AS event_time - INTERVAL '1' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
         ) WITH(
-            "connector":"kinesis",
-            "stream":"de-ai-09-an2-kds-stock-input",
-            "aws.region":"ap-northeast-2",
-            "scan.stream.initpos"="LATEST", -- 작동 시점부터 데이터 읽기
-            "format":"json"                        
+            'connector'='kinesis',
+            'stream'='de-ai-09-an2-kds-stock-input',
+            'aws.region'='ap-northeast-2',
+            'scan.stream.initpos'='LATEST', -- 작동 시점부터 데이터 읽기
+            'format'='json'                        
         )
     ''')
 
@@ -58,15 +58,15 @@ def main():
     # 티거, 평균 가격, 생성시간
     # 출력데이터에 대한 테이블에 kds가 연결되어 있어야 함
     t_env.execute_sql('''
-        create table stock_output(
+        CREATE TABLE stock_output(
             tiker STRING,
             avg_price DOUBLE,
             avg_time TIMESTAMP(3)     
         ) WITH(
-            "connector":"kinesis",
-            "stream":"de-ai-09-an2-kds-stock-output",
-            "aws.region":"ap-northeast-2", 
-            "format":"json"                        
+            'connector'='kinesis',
+            'stream'='de-ai-09-an2-kds-stock-output',
+            'aws.region'='ap-northeast-2', 
+            'format'= 'json'                        
         )
     ''')
     
