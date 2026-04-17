@@ -23,7 +23,7 @@ def main():
     # 데이터를 한번에 일괄 처리 => 배치 방식, 실시간(지속적) 데이터를 처리 => 스트리밍 방식 (O)
     setting = EnvironmentSettings.new_instance().in_streaming_mode().build() # 세팅 값에 대한 설계도(객체) 생성
     # SQL과 유사한 방식으로 데이터를 다룰 수 있는 실행 객체 생성
-    t_env=TableEnvironment(setting)
+    t_env=TableEnvironment.create(setting)
 
     '''
         로그 원문 1개
@@ -43,9 +43,9 @@ def main():
             tiker STRING,
             price DOUBLE,  -- 정밀한 실수
             event_time TIMESTAMP(3),  -- 소수점 셋째 자리 => 밀리초 단위
-            WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
-        ) with(
-            "connector":"kinesis,
+            WATERMARK FOR event_time AS event_time - INTERVAL '1' SECOND  -- 늦게 들어온 데이터 5초까지 기다려주기          
+        ) WITH(
+            "connector":"kinesis",
             "stream":"de-ai-09-an2-kds-stock-input",
             "aws.region":"ap-northeast-2",
             "scan.stream.initpos"="LATEST", -- 작동 시점부터 데이터 읽기
@@ -62,8 +62,8 @@ def main():
             tiker STRING,
             avg_price DOUBLE,
             avg_time TIMESTAMP(3)     
-        ) with(
-            "connector":"kinesis,
+        ) WITH(
+            "connector":"kinesis",
             "stream":"de-ai-09-an2-kds-stock-output",
             "aws.region":"ap-northeast-2", 
             "format":"json"                        
@@ -77,7 +77,7 @@ def main():
                AVG(price) as avg_price, 
                TUMBLE_END(event_time, INTERVAL '10' SECOND) as avg_time
         FROM stock_input
-        GROUP BY TUMBLE_END(event_time, INTERVAL '10' SECOND), ticker
+        GROUP BY TUMBLE(event_time, INTERVAL '10' SECOND), ticker
     
     ''').wait() # 쿼리 처리가 완료될 때까지 기다림
     
