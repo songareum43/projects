@@ -71,7 +71,8 @@ with DAG(
         with(
             format = 'PARQUET',
             parquet_compression = 'GZIP',
-            external_location = {S3_TARGET_LOC} # 쿼리 후 진짜 데이터 저장 경로 지정
+            external_location = '{S3_TARGET_LOC}'
+        ) 
         as
         select id,name,score,created_at
         from {SRC_NAME}
@@ -99,7 +100,6 @@ with DAG(
         timeout = 600, # 최대 대기 시간, 10분
         aws_conn_id = 'aws_default'
     )
-
 
     # 5. 의존성 정의
     t1 >> t2 >> t3 >> t4
