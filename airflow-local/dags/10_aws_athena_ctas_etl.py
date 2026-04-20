@@ -15,8 +15,9 @@ import logging
 # 2. 환경 변수
 BUCKET_NAME='de-ai-09-827913617635-ap-northeast-2-an'
 ATHENA_DB_NAME='de-ai-09-an2-glue-db'
-SRC_NAME='s3_exam_cav' # 참고 테이블 => CTAS 과정에서는 원본 테이블이 없으면 데이터를 읽을 수 없기 때문에 꼭 필요! (데이터 자체가 있는 저장소 경로도 다 나와있음)
+SRC_NAME='athena_s3_data_tbl' # 참고 테이블 => CTAS 과정에서는 원본 테이블이 없으면 데이터를 읽을 수 없기 때문에 꼭 필요! (데이터 자체가 있는 저장소 경로도 다 나와있음)
 TARGET_TABLE = 'pass_student' 
+
 # 메타 정보, 임시 정보 필요시 저장/삭제 공간으로 활용
 S3_TARGET_LOC = f's3://{BUCKET_NAME}/athena/tbl/{TARGET_TABLE}/' # 새 데이터 파일이 저장될 곳
 S3_QUERY_LOG_LOC = f's3://{BUCKET_NAME}/athena/query_logs/'  # 쿼리한 기록 로그가 저장되는 곳
@@ -52,7 +53,7 @@ with DAG(
     # 임시로 사용한 테이블 삭제 -> 클린
     t2=AthenaOperator(
         task_id = 'drop_table',
-        query = f'drop table if exists {ATHENA_DB_NAME}.{TARGET_TABLE}',
+        query = f'drop table if exists {TARGET_TABLE}',
         database = ATHENA_DB_NAME,
         output_location = S3_QUERY_LOG_LOC,  # 쿼리 수행 결과 로그 저장 위치
         aws_conn_id='aws_default'
@@ -63,15 +64,17 @@ with DAG(
     # PARQUET : 압축 형태 지원, GZIP 등 포멧 사용, 열 기반 데이터 관리
     # 90점 이상 학생들 데이터를 추출 => PARQUET 포멧 변환 => GZIP 압축 => s3_TARGET_LOC 저장
     # 해당 소스를 TARGET_TABLE이 참조하여 => Athena를 통해 쿼리 수행 => 결과 뽑기
+    # 향후 쿼리 업데이트 -> 당일 시험에 응시한 학생 대상으로 90점 이상만 추출
+
     query=f'''
-        create table {ATHENA_DB_NAME}.{TARGET_TABLE}
+        create table {TARGET_TABLE}
         with(
             format = 'PARQUET',
             parquet_compression = 'GZIP',
             external_location = {S3_TARGET_LOC} # 쿼리 후 진짜 데이터 저장 경로 지정
         as
         select id,name,score,created_at
-        from {ATHENA_DB_NAME}.{SRC_NAME}
+        from {SRC_NAME}
         where score >= 90
         order by score desc
     ''' 
@@ -87,7 +90,7 @@ with DAG(
     
     # CTAS 
     # 10분 간 최대 대기, 10초 간격 감시 => 앞 테스크가 완료되었는지 점검
-    # athena 상 테이블이 완료되었는지 감시
+    # athena 상 테이블이 완성되었는지 감시 -> 데이터 구성이 되었다
     t4=AthenaSensor(
         task_id = 'sencor',
         # 앞 테스크 감시
