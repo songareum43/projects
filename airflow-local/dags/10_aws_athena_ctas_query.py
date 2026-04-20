@@ -27,7 +27,7 @@ CSV_TABLE='s3_exam_csv_tbl'
 TARGET_TABLE='daily_report_tbl'
 
 # 메타 정보, 임시 정보 필요시 저장/삭제 공간으로 활용
-S3_TARGET_LOC = f's3://{BUCKET_NAME}/athena/tbl/query' 
+S3_TARGET_LOC = f's3://{BUCKET_NAME}/athena/tbl/query/{TARGET_TABLE}' 
 S3_QUERY_LOG_LOC = f's3://{BUCKET_NAME}/athena/query_logs/'  
 
 # 3. DAG 정의
