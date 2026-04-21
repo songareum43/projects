@@ -1,4 +1,3 @@
-from logging import exception
 # 1. 모듈 가져오기
 import json
 import os
@@ -46,7 +45,7 @@ def gen_data():
   ]
   # 제품 1개 선택
   selected_item = random.choice(items)
-  # 수량 램덤 구성
+  # 수량 랜덤 구성
   qty = random.randint(1, 3)
   # 현재 시간 세팅
   current_utc_time = datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -77,6 +76,7 @@ def send_to_kinesis(log_entry):
       StreamName = KINESIS_DATA_STREAM_NAME,
       Data = json.dumps(log_entry),
       PartitionKey = log_entry['event_id']
+      # 유니크가 키를 파티션으로 사용하게 되면 부하 골고루 나누기의 용도
     )
     return True
   except Exception as e:
@@ -89,7 +89,7 @@ if __name__ == '__main__':
       log_entry = gen_data()
       if send_to_kinesis(log_entry):
         print(f"{log_entry['event_time']} 전송 성공 {log_entry['event_id'][:6]}")
-      time.sleep( random.uniform(0.5, 1.5) )
+      time.sleep( random.uniform(0.5, 1.5))
       
   except KeyboardInterrupt:
     print('발생 중단')
