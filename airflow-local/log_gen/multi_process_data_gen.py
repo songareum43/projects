@@ -118,7 +118,7 @@ if __name__ == '__main__':
       # 종료 처리
       try:
         for p in processes:
-          p.join # 자식 프로세스가 모두 끝날 때까지 대기
+          p.join() # 자식 프로세스가 모두 끝날 때까지 대기
       except Exception as e: # ctrl + c
         print('종료')
 
