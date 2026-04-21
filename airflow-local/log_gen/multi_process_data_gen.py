@@ -67,9 +67,9 @@ def gen_data(store_id):
           "item_id" : selected_item["item_id"],           # 구매 제품
           "price"   : selected_item["price"],             # 단가
           "qty"     : qty,                                # 수량
-          "store_id": "store-01"                          # 매장번호(오프/온라인 포함)
+          "store_id": store_id                          # 매장번호(오프/온라인 포함) 
       }),
-      "ingested_at": current_utc_time                     # 로그 발생 시간(event time과 동일)
+      "ingested_at": current_utc_time   # 로그 발생 시간(event_time) 동일
   }
   return raw_log
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
       # 점포(매장) id 생성
       store_id = f"store-{str(i+1).zfill(2)}" # 01, 02, 03
       # 멀티프로세서를 이용하여 프로세스 생성
-      p = multiprocessing.Process(target=run_producer, args=(i, store_id))
+      p = multiprocessing.Process(target=run_producer, args=(i, store_id)) # Process : 새로운 방 만들기 설계도 (실행 시킬 함수, 필요한 매개 변수)
       processes.append(p)
       # 프로세스 가동 => 함수 호출 => 내부에서 무한 루프 => 데이터 생성 및 전송
       p.start()
