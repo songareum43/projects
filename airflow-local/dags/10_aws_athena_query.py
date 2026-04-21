@@ -61,12 +61,14 @@ with DAG(
         LOCATION 's3://de-ai-09-827913617635-ap-northeast-2-an/csvs/'
         TBLPROPERTIES ("skip.header.line.count"="1"); 
         ''' ,  # 테이블 생성 시 EXTERNAL 이거 빼먹고 생성하니 오류 발생
+        
         database = ATHENA_DB_NAME,
         output_location = QUERY_RESULT_S3,  
         aws_conn_id='aws_default'
     )
 
     # 매 스케줄마다 그 시점의 최신 데이터로 유지하기 위해 테이블 삭제
+    # 멱등성 -> 매번 주기적으로 반복되는 연산의 결과가 항상 동일하도록 (값의 동일 x)
     t2 = AthenaOperator(
         task_id='report_tbl_drop',
         query = f'drop table if exists {TARGET_TABLE}',
@@ -75,28 +77,26 @@ with DAG(
         aws_conn_id='aws_default'
     )
 
-    query=f'''
+    # ctas
+    t3 = AthenaOperator(
+        task_id='report_tbl_create_with_raw_data_tbl',
+        query = f'''
         create table {TARGET_TABLE}
         with(
             format = 'PARQUET',
             parquet_compression = 'GZIP',
-            external_location = '{QUERY_RESULT_S3}'
+            external_location = 's3://{BUCKET_NAME}/report_data/'
         ) 
         as
-        select result, count(result) as count, avg(score) as avg, min(score) as min, max(score) as max
+        select result, count(result) as count, avg(score) as avg_score, min(score) as min_score, max(score) as max_score
         from {CSV_TABLE}
         group by result;
-    ''' 
-    # ctas
-    t3 = AthenaOperator(
-        task_id='report_tbl_create_with_raw_data_tbl',
-        query = query,
+    ''' ,   # 새 테이블 생성할 때는 반드시 별칭 부여 필요...!!
+        
         database = ATHENA_DB_NAME,
         output_location = QUERY_RESULT_S3,  
         aws_conn_id='aws_default'
     )
-
-    # 새 테이블 생성할 때는 반드시 별칭 부여 필요...!!
 
     # 5. 의존성
     t1 >> t2 >> t3
