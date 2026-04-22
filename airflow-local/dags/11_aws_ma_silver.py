@@ -19,11 +19,18 @@
 - 작업(silver 테이블 삭제 -> ctas)
 '''
 # 1. 모듈 가져오기
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.providers.amazon.aws.operators.athena import AthenaOperator
 
 # 2. 환경변수
+DATABASE_BRONZE = 'de-ai-09-ma-bronze-db'
+DATABASE_SILVER = 'de-ai-09-ma-silver-db'
+SILVER_S3_PATH = 's3://de-ai-09-827913617635-ap-northeast-2-an/medallion/silver/'
+ATHENA_RESULTS = 's3://de-ai-09-827913617635-ap-northeast-2-an/athena-results/'
 
 # 3. DAG 정의
 
     # 4. TASK 정의
-    
+
     # 5. 의존성
