@@ -31,7 +31,7 @@ with DAG(
     tags        = ['aws', 'medallion', 'silver', 'athena', 'increment'],
 ) as dag:
     # [TASK 1] Silver 테이블이 없을 경우에만 생성 (Schema 정의)
-    # CTAS가 아니므로 데이터 없이 구조만 먼저 만듬
+    # CTAS가 아니므로 데이터 없이 구조만 먼저 만듦
     create_silver_table = AthenaOperator(
     task_id='create_silver_table_if_not_exists',
     query="""
@@ -49,7 +49,7 @@ with DAG(
         )
         PARTITIONED BY (dt string, hr string)
         STORED AS PARQUET
-        LOCATION '{{ params.silver_path }}'
+        LOCATION '{{ params.silver_path }}'  -- 정제 후 저장될 폴더 경로
         TBLPROPERTIES ('parquet.compress'='SNAPPY');
     """,
     params={
