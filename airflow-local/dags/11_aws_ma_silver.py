@@ -78,7 +78,7 @@ with DAG(
                 cast(year || '-' || month || '-' || day as VARCHAR) as dt, -- cast : 성질 변환 / || : 이어 붙이기 기호
                 hour as hr
             from {{ params.database_bronze }}.raw_bronze_tbl
-            where   year = '{{ execution_date.format('YYYY') }}'  -- execution_date : airflow가 작업 해야하는데 데이터에 대한 시간 .format() : 괄호 안에 있는 것만 뽑음
+            where   year = '{{ execution_date.format('YYYY') }}'  -- execution_date : airflow가 작업 해야하는 데이터에 대한 시간 .format() : 괄호 안에 있는 것만 뽑음
                 and month= '{{ execution_date.format('MM') }}'
                 and day  = '{{ execution_date.format('DD') }}'
                 and hour = '{{ execution_date.format('HH') }}'
