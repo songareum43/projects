@@ -37,7 +37,7 @@ with DAG(
     create_gold_view = AthenaOperator(
         task_id = 'create_or_replace_gold_view',
         query="""
-            create or replace view {{params.datacase_gold}}.{{params.view_nm}} as 
+            create or replace view {{params.datacase_gold}}.{{params.view_nm}} as -- replace는 쿼리문에 관한 명령어
             select 
                 item_id,
                 sum(qty) as total_qty,
