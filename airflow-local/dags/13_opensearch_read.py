@@ -55,13 +55,32 @@ def _searching_proc(**kwargs):
         return
     else:
         print('조회 결과 수', len(hits))
-    # 4-1-5. 분석 -> 요구사항(평균 온도, 최대 진동 등 계산), 이상 탐지
+    # 4-1-5. 분석 -> 요구사항(오븐 별 평균 온도, 최대 진동 등 계산), 이상 탐지
     # 분석이 가능한 형태의 자료구조 변형(pandas or pyspark 등 활용 - 데이터 체급에 따라 적용)
     data = [hit['_source'] for hit in hits] # 원 data 획득 -> dict 형태
     # data = > [{}, {}..]
     df = pd.DataFrame(data)
     print(df.sample(1)) # 샘플 1개 출력
 
+    # 요구사항 => 그룹화(groupby or 피벗 테이블..)하여 처리
+    analysis = df.groupby('oven_id').agg({
+        "temperature":"mean", # 평균 온도
+        "vibration":"max", # 최대 진동값
+        "status":"count" # 총 로그 수
+    }).rename(columns={
+        'status':'log_count',
+        'temperature':'temp_mean',
+        'vibration':'vib_max'
+    })
+    print("최근 120분간 오븐별 평균 온도, 최대 진동, 발생 로그 수")
+    print(analysis)
+
+    # 이상치 탐지 => 오븐 온도가 230도 이상인 데이터만 필터링 => 블리언(조건식) 인덱싱 사용
+    # df => 2차원/매트릭스, series => 1차원/백터, 0차원 => 값/스칼라 
+    out_of_data = df[df['temperature'] >= 230]
+    if len(out_of_data):
+        print('이상 온도 감지 건수', len(out_of_data))
+        # 차후 오븐별(장비별) 발생 건수 추출 가능 
 
     # 4-1-6. 분석 결과 출력
 
