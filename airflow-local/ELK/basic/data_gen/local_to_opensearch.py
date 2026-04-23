@@ -24,8 +24,8 @@ client = OpenSearch(
     http_compress = True, # 압축해서 올리기
     use_ssl = True, # 보안 통로
     verify_certs  = True, # 보안 통로
-    ssl_assert_hostname = False,
-    ssl_show_warn = False
+    ssl_assert_hostname = False, # 이름 조금 달라도 들여보내기? (정확한 이름 확인 x)
+    ssl_show_warn = False  # 경고창 띄우지 않기
 )
 
 # 4. 인덱스 생성 => (스마트 팩토리 -> 센서(장비)별로 구성/)
