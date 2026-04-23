@@ -60,4 +60,4 @@ while True:
         )
         print(f"{oven_id} 온도 : {doc['temperature']} 전송 완료")
     # 오븐 값 3개 전송 후 1초 대기
-    time.sleep(1)
+    time.sleep(2)
