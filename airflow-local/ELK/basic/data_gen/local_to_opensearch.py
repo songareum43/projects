@@ -56,7 +56,7 @@ while True:
         response = client.index(
             index=index_name,
             body=doc,
-            refresh=True
+            refresh=True # 데이터를 넣자마자 검색 조회 가능하게 하기
         )
         print(f"{oven_id} 온도 : {doc['temperature']} 전송 완료")
     # 오븐 값 3개 전송 후 1초 대기
