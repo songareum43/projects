@@ -7,7 +7,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from opensearchpy import OpenSearch
 import pendulum # 서울 시간대 간편하게 설정
-from airflow.models import Variable
+from airflow.models import Variable # airflow 대시보드 variable에 저장된 내용 가져와서 사용
 import pandas as pd
 
 # 2. 환경변수
@@ -45,7 +45,7 @@ def _searching_proc(**kwargs):
 
     # 4-1-3. 검색 요청
     # 인덱스 정보 + 상세 조건
-    response=client.search(index=index_name, body=query)
+    response = client.search(index=index_name, body=query)
     print('검색 결과', response)
     hits = response['hits']['hits']
 
@@ -93,7 +93,7 @@ with DAG(
         'retries'           : 1,
         'retry_delay'       : timedelta(minutes=1)
     },    
-    schedule_interval = '*/10 * * * *',
+    schedule_interval = '*/10 * * * *', # 10분마다 1번씩
     start_date  = pendulum.datetime(2026,1,1,tz="Asia/Seoul"), # 서울 시간대 1월 1일
     catchup     = False,
     tags        = ['aws', 'opensearch'],
