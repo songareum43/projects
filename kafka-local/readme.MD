@@ -149,12 +149,71 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
 
 # 로그 형태
 - 참고
- - 최초 데이터 => fluent-bit/logstash => 데이터 형태에 노이즈가 많음(프로토컬 때문에 추가된 내용이 많음) => 필터 역할 필요
- - 필터 보정하는 내용 추후 업데이트
+    - 최초 데이터 => fluent-bit/logstash => 데이터 형태에 노이즈가 많음(프로토컬 때문에 추가된 내용이 많음) => 필터 역할 필요
+    - 필터 보정하는 내용 추후 업데이트
 
- # kafka 대시보드
- - kafka ui
- - 메세지의 흐름, connect를 통해 전달이 잘 되는지 등 모니터링
+# kafka 대시보드
+- kafka ui
+- 메세지의 흐름, connect를 통해 전달이 잘 되는지 등 모니터링
  
  # 로컬 -> 클라우드 연결
- - kafka connect
+- kafka connect
+- docker-compose.yaml 업데이트
+```
+    docker compose down
+    docker compose up -d
+```
+- CLI 등록
+```
+curl -X POST http://localhost:8083/connectors \
+        -H "Content-Type: application/json" \
+        -d '{
+            "name": "kafka-to-firehose-sink",
+            "config": {
+            "connector.class": "io.confluent.connect.aws.firehose.KinesisFirehoseSinkConnector",
+            "tasks.max": "1",
+            "topics": "factory-json-topic,factory-text-topic",
+            "region": "ap-northeast-2",
+            "aws.kinesis.firehose.delivery.stream": "de-ai-09-ap2-kafka",
+            "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+            "value.converter.schemas.enable": "false",
+            "errors.log.enable": "true",
+            "errors.log.include.messages": "true"
+            }
+        }'
+``` 
+
+```
+
+```
+
+- Kafka ui 접속
+    - create connector
+    - config
+        - firehose 관련 내용
+    ```
+    name: kafka-to-firehose-sink (커넥터 식별 이름)
+    connector.class: io.confluent.connect.aws.firehose.KinesisFirehoseSinkConnector
+    tasks.max: 1 (데이터량이 많으면 숫자를 늘려 병렬 처리 가능)
+    topics: factory-json-topic,factory-text-topic (구독할 토픽들)
+    region: ap-northeast-2 (AWS 리전)
+    aws.kinesis.firehose.delivery.stream: 자신의_파이어호스_스트림_이름
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable: false
+    ```
+    ```
+    {
+        "name": "kafka-to-firehose-sink",
+        "config": {
+            "connector.class": "io.confluent.connect.aws.firehose.KinesisFirehoseSinkConnector",
+            "tasks.max": "1",
+            "topics": "factory-json-topic,factory-text-topic",
+            "region": "ap-northeast-2",
+            "aws.kinesis.firehose.delivery.stream": "de-ai-09-ap2-kafka",
+            "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+            "value.converter.schemas.enable": "false",
+            "errors.log.enable": "true",
+            "errors.log.include.messages": "true"
+        }
+    } 
+    ```
