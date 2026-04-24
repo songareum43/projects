@@ -135,3 +135,8 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
 
 - conf가 수정되면
     - `docker compose restart` 반드시 수행
+
+- 전달 내용
+    - http로 전달해서 데이터가 늘어남
+    - forward 등 전달 방식은 다양
+        - forward 시도, 24224 포트 사용 -> http와는 다른 모양으로 나옴
