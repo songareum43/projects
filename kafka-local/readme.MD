@@ -62,6 +62,9 @@ MESSAGING    :     Kafka / MSK (Broker) <-------------------------------------+-
                |          +----( Topic A: factory-json-topic ) <--- [Channel A Result]
                |          +----( Topic B: factory-text-topic ) <--- [Channel B Result]
                v                                                               |
+                                                                          kafka connect / ui
+                                                                               |
+                                                                               v
 VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOARD (Kibana)
 ====================================================================================================
 ```
@@ -90,7 +93,10 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
                |          |
                |          +----( 토픽 A: factory-json-topic ) <--- [채널 A 결과물]
                |          +----( 토픽 B: factory-text-topic ) <--- [채널 B 결과물]
-               v                                                                  |
+               v                                                                  | 
+                                                                          kafka connect / ui
+                                                                                  |
+                                                                                  v
 시각화/분석  :     OpenSearch (DB)      <---( 인덱싱 및 검색 )------>  대시보드 (Kibana)
 ====================================================================================================
 ```
@@ -140,3 +146,15 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
     - http로 전달해서 데이터가 늘어남
     - forward 등 전달 방식은 다양
         - forward 시도, 24224 포트 사용 -> http와는 다른 모양으로 나옴
+
+# 로그 형태
+- 참고
+ - 최초 데이터 => fluent-bit/logstash => 데이터 형태에 노이즈가 많음(프로토컬 때문에 추가된 내용이 많음) => 필터 역할 필요
+ - 필터 보정하는 내용 추후 업데이트
+
+ # kafka 대시보드
+ - kafka ui
+ - 메세지의 흐름, connect를 통해 전달이 잘 되는지 등 모니터링
+ 
+ # 로컬 -> 클라우드 연결
+ - kafka connect
