@@ -132,3 +132,6 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
     PS .. > docker exec -it kafka-local bash
     $ > ./opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic factory-text-topic --from-beginning
 ```
+
+- conf가 수정되면
+    - `docker compose restart` 반드시 수행
