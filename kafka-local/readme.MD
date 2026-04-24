@@ -101,3 +101,17 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
     docker compose down
     docker compose up -d
 ```
+
+# Fluentd(40~60MB) <-> Fluent-Bit(1~5MB)
+- 태그 기반 라우팅 도구(Tag Based Routing)
+- Ruby(C 결합) 구조 <-> C
+- fluent-bit/etc/fluent-bit.conf에서 기술 구성 완료
+- 목표
+    - 데이터 수집, 처리, 전달 => ETL 도구
+    - 경량형 오픈 소스 로그 프로세서
+    - 고가용성, 고성능 처리, 데이터 처리 안정성
+- 파이프라인
+    - input  : 파일, 시스템 매트릭, http 스트림.. 다양한 소스 제공
+    - service, parser, filter, buffer, rountiong
+    - output : kafka/opensearch/elasticsearch/s3/.. 모두 가능
+- conf 구성 => 규칙 기술
