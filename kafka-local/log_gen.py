@@ -32,11 +32,12 @@ def generate_logs():
     with open(f"{log_dir}/sensor_json.log", "a", encoding="utf-8") as f:
         f.write(json.dumps(data)+'\n')
 
-    # test 형태로 파일 기록(한줄에 로그 1개씩) -> f-string 구성
+    # text 형태로 파일 기록(한줄에 로그 1개씩) -> f-string 구성
     # 파일명 ./sensor_logs/sensor_text.log
     text = f"[{data["timestamp"]}] ID={data["sensor_id"]} |   TEMP:{data["temperature"]} |   HUMI:{data["humidity"]} |   STAT:{data["status"]}"
     with open(f"{log_dir}/sensor_text.log", "a", encoding="utf-8") as f:
         f.write(json.dumps(text)+'\n')
+        # 포장지만 json형태(" 붙음)로 저장될 뿐 실제로 key와 value 값을 알 수 있는 형태가 x
 
     print(f"로그 발생 완료{data['timestamp']}")
     
