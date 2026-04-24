@@ -114,6 +114,21 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
     - input  : 파일, 시스템 매트릭, http 스트림.. 다양한 소스 제공
     - service, parser, filter, buffer, rountiong
     - output : kafka/opensearch/elasticsearch/s3/.. 모두 가능
-- conf 구성 => 규칙 기술
 - 지원 플러그인
     - 약 1000개 <-> 약 100개
+
+- conf 구성 => 규칙 기술
+    ```
+    - docker compose restart
+    ```
+
+- 컨슈머 구동
+```
+    # json 관련 컨슈머
+    PS .. > docker exec -it kafka-local bash
+    $ > ./opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic factory-json-topic --from-beginning
+
+    # text 관련 컨슈머
+    PS .. > docker exec -it kafka-local bash
+    $ > ./opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic factory-text-topic --from-beginning
+```
