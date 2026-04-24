@@ -157,63 +157,29 @@ VISUALIZE    :     OpenSearch (DB)      <---( Indexing & Search )---->  DASHBOAR
 - 메세지의 흐름, connect를 통해 전달이 잘 되는지 등 모니터링
  
  # 로컬 -> 클라우드 연결
-- kafka connect
-- docker-compose.yaml 업데이트
-```
-    docker compose down
-    docker compose up -d
-```
-- CLI 등록
-```
-curl -X POST http://localhost:8083/connectors \
-        -H "Content-Type: application/json" \
-        -d '{
-            "name": "kafka-to-firehose-sink",
-            "config": {
-            "connector.class": "io.confluent.connect.aws.firehose.KinesisFirehoseSinkConnector",
-            "tasks.max": "1",
-            "topics": "factory-json-topic,factory-text-topic",
-            "region": "ap-northeast-2",
-            "aws.kinesis.firehose.delivery.stream": "de-ai-09-ap2-kafka",
-            "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-            "value.converter.schemas.enable": "false",
-            "errors.log.enable": "true",
-            "errors.log.include.messages": "true"
-            }
-        }'
-``` 
+- kafka connect => X (플로그인 자주 변경, 정책 변경)
+- 전용 포워더로 변경
+    - Vector는 Datadog에서 만든 초고속 데이터 파이프라인 도구
+    - Java 의존성이 없고 단일 실행 파일로 돌아가서 Kafka Connect보다 훨씬 가볍고 설치가 쉬움
+    - YAML 설정 파일 하나로 모든 게 끝남.
+    - 메모리 사용량이 매우 적음 (Rust 기반).
+    - 단축된 파이프라인: Kafka -> Vector -> Firehose 구조를 YAML 설정 하나로 끝
 
+- docker-compose.yaml 수정
 ```
-
+    vector:
+    image: timberio/vector:0.36.0-debian # 최신 안정 버전
+    container_name: vector
+    volumes:
+        - ./vector.yaml:/etc/vector/vector.yaml:ro
+    environment:
+        # .env 파일에 정의된 AWS 인증 정보를 전달
+        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY}"
+        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_KEY}"
+        AWS_REGION: "${AWS_REGION}"
+    depends_on:
+        - kafka
+    networks:
+        - kafka-net
 ```
-
-- Kafka ui 접속
-    - create connector
-    - config
-        - firehose 관련 내용
-    ```
-    name: kafka-to-firehose-sink (커넥터 식별 이름)
-    connector.class: io.confluent.connect.aws.firehose.KinesisFirehoseSinkConnector
-    tasks.max: 1 (데이터량이 많으면 숫자를 늘려 병렬 처리 가능)
-    topics: factory-json-topic,factory-text-topic (구독할 토픽들)
-    region: ap-northeast-2 (AWS 리전)
-    aws.kinesis.firehose.delivery.stream: 자신의_파이어호스_스트림_이름
-    value.converter: org.apache.kafka.connect.json.JsonConverter
-    value.converter.schemas.enable: false
-    ```
-    ```
-    {
-        "name": "kafka-to-firehose-sink",
-        "config": {
-            "connector.class": "io.confluent.connect.aws.firehose.KinesisFirehoseSinkConnector",
-            "tasks.max": "1",
-            "topics": "factory-json-topic,factory-text-topic",
-            "region": "ap-northeast-2",
-            "aws.kinesis.firehose.delivery.stream": "de-ai-09-ap2-kafka",
-            "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-            "value.converter.schemas.enable": "false",
-            "errors.log.enable": "true",
-            "errors.log.include.messages": "true"
-        }
-    } 
-    ```
+- vactor.yaml 파일 작성
