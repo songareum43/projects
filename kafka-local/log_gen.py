@@ -37,7 +37,7 @@ def generate_logs():
     text = f"[{data["timestamp"]}] ID={data["sensor_id"]} |   TEMP:{data["temperature"]} |   HUMI:{data["humidity"]} |   STAT:{data["status"]}"
     with open(f"{log_dir}/sensor_text.log", "a", encoding="utf-8") as f:
         f.write(json.dumps(text)+'\n')
-        # 포장지만 json형태(" 붙음)로 저장될 뿐 실제로 key와 value 값을 알 수 있는 형태가 x
+        # 포장지만 json형태(" 붙음)로 저장될 뿐 실제로 key와 value 값을 알 수 있는 형태가 x -> 왜 이렇게 할까? 내용의 안정성 보존을 위해
 
     print(f"로그 발생 완료{data['timestamp']}")
     

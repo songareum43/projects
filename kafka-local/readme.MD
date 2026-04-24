@@ -25,7 +25,7 @@ root@4527e52ba5f6:/# pwd
 /
 root@4527e52ba5f6:/# cd /opt/kafka/bin
 
-# 토픽 생성 (파티션 11개, 원본 1개만 유지)
+# 토픽 생성 (파티션 1개, 원본 1개만 유지)
 > kafka-topics.sh --create --topic spacex --bootstrap-server 127.0.0.1:9092 --partitions 1 --replication-factor 1
 
 # 토픽 전송(프로듀서 - 콘솔에서 데이터를 보낼 수 있는 입력 도구 실행)
